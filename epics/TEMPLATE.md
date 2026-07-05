@@ -4,17 +4,21 @@
 **Origem:** <strategy | marketing> · <data>
 **Prioridade servida:** MVP + 2–3 clientes pagantes (se não servir, o épico não existe)
 
-## Outcome (por que este épico existe)
+## Output / Outcome (por que este épico existe)
 
-<Resultado de negócio observável. Sem solução técnica aqui — descrever solução é defeito.>
+<Output: entrega concreta e verificável (válido em fase inicial). Outcome: resultado de negócio mensurável. Pelo menos um dos dois. Sem solução técnica aqui — descrever solução é defeito.>
 
-- **Métrica de sucesso:** <como saberemos que funcionou, mensurável>
+- **Critério de sucesso:** <output verificável e/ou métrica de outcome>
 - **Restrições:** <prazo, orçamento, dependências>
 - **Fora de escopo:** <o que explicitamente NÃO entra>
 
 ## Escopo proposto (engineering — skill `escopar-epico`)
 
-<Opções consideradas com trade-offs; recomendação com rationale. Desafios feitos ao épico e respostas.>
+<Opções consideradas com trade-offs; recomendação com rationale. Desafios só ao que for long shot.>
+
+### Mudança no sistema
+
+<Antes → depois: componentes, rotas, dados afetados. Referência à atualização proposta de `docs/architecture.md` (diagramas). Este é o entregável central do escopo — transparência, não corte.>
 
 ## DoD — Definition of Done (congela no aceite)
 

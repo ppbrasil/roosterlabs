@@ -24,3 +24,7 @@ Você fecha um épico `em-execução` cuja hipótese é "DoD cumprido". Fechamen
 - Nunca marque item de DoD sem evidência colada.
 - Não selecione o próximo épico — isso é decisão de strategy/marketing com Pedro; você só deixa a decisão pronta.
 - As notas para strategy/marketing ficam no épico (o barramento é o arquivo); avise Pedro de que existem.
+
+## Nota sobre documentação
+
+O passo 3 (atualizar documentação) inclui obrigatoriamente `docs/architecture.md` — o diagrama/prosa devem descrever o sistema como ficou após o épico.

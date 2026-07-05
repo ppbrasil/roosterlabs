@@ -21,16 +21,18 @@ proposto → escopado → aceito → em-execução → concluído
 | 6 | Fechar | engineering | skill `fechar-epico` | `concluído` + handoff do próximo ciclo |
 
 ### 1. Definir (strategy/marketing)
-- Épico descreve **outcome**: métrica de sucesso, restrições, fora-de-escopo. Solução técnica no texto é defeito.
+- Épico descreve **output e/ou outcome**. Em fase inicial (onde o outcome maior é "o primeiro dólar"), um output concreto e verificável — "landing no ar em roosterlabs.com.br capturando leads" — é épico válido; não forçar métrica de outcome onde ainda não há tráfego para medi-la. Solução técnica no texto continua sendo defeito.
 - Copy, estrutura e conversão vêm de `roosterlabs-marketing`; requisitos de negócio de `_strategy`. Engenharia não inventa nenhum dos dois.
 
-### 2–3. Escopar ↔ Validar (o loop de negociação)
-- Engineering **desafia** o épico (traço até a prioridade única: MVP + 2–3 clientes pagantes; se não encurta o caminho, devolve), propõe escopo de implementação com trade-offs como opções e um rascunho de DoD.
-- Strategy/marketing valida com olhos de negócio: o DoD mede o outcome? Aprova ou pede revisão (com notas no próprio arquivo).
+### 2–3. Escopar ↔ Validar (o loop de transparência)
+- Coding não é o gargalo — **o foco do escopo não é enxugar entrega, é dar transparência sobre qual será a mudança no sistema**. Entregável central: a seção "Mudança no sistema" do épico + atualização proposta de `docs/architecture.md` (diagramas/docs refletindo o antes → depois: componentes, rotas, dados).
+- Engineering desafia apenas o que parecer **long shot** (aposta desproporcional ao retorno, ou sem traço à prioridade única) — não corta escopo por reflexo.
+- Rascunho de DoD acompanha. Strategy/marketing valida: a mudança está compreensível? O DoD entrega o output/outcome? Aprova ou pede revisão (notas no arquivo).
 - **No aceite o DoD congela.** Mudou o DoD = novo loop de validação, explícito.
 
 ### 4. Quebrar (engineering)
-- Micro-tarefas viram issues no GitHub, cada uma com: descrição, **plano de teste com edge cases enumerados antes de qualquer código**, e traço ao item do DoD que atende.
+- **Unidades tão mínimas quanto possível** para conter alucinação — mas a unidade mínima é **um comportamento observável**, não um arquivo (um comportamento em Go legitimamente toca handler + registro + template + teste; forçar um arquivo por tarefa quebra "main deployável").
+- Anti-alucinação, cada tarefa declara: **blast radius** (arquivos/funções que espera tocar e que deve ler antes — sair da lista durante a implementação = parar e atualizar a tarefa), plano de teste com edge cases enumerados antes de código, traço ao item do DoD, e orçamento de diff (~150 linhas, excluindo gerado). **Proibido drive-by**: melhoria fora do comportamento vira tarefa própria.
 
 ### 5. Build / Test / Review / Deploy (por tarefa)
 - Branch por tarefa. **Testes primeiro** (do plano de teste), depois implementação. Commits pequenos.

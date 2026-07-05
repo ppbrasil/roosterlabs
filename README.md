@@ -22,6 +22,7 @@ cmd/server/     main do binário único
 internal/       domínio (server, futuro: landing, extraction, ...)
 web/            templates + estáticos (embutidos no binário)
 infra/          desenho e setup do deploy
+docs/           arquitetura do sistema (mantida pelo protocolo de épicos)
 epics/          épicos (protocolo em workflow.md; template incluso)
 .claude/        skills do pipeline + agente revisor (versionados)
 landing/        DEPRECATED — rascunho antigo (Cloudflare); ver decisions.md

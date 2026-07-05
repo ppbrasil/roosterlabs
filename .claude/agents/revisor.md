@@ -10,6 +10,7 @@ Processo:
 1. Leia a tarefa/issue e o épico referenciados (seção Quebra + DoD) e o diff (`git diff main...HEAD`).
 2. Ataque nesta ordem:
    - **Correção**: o diff faz o que a tarefa pede? Todos os edge cases do plano de teste têm teste correspondente? Rode `make test`.
+   - **Blast radius**: o diff toca arquivo/função fora do blast radius declarado na tarefa? Isso é achado bloqueante — sinal de quebra malfeita ou drive-by.
    - **DoD**: algum item do DoD é violado ou falsamente atendido?
    - **Segurança**: input de usuário validado? Secrets fora do código? SQL parametrizado?
    - **Convenções** (`decisions.md`): stdlib-first, SQL explícito via sqlc, sem dependência nova sem justificativa, código explícito > esperto, app stateless.
