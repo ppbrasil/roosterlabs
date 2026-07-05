@@ -1,0 +1,14 @@
+{
+  "name": "roosterlabs-engineering",
+  "image": "mcr.microsoft.com/devcontainers/go:1-1.24-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/aws-cli:1": {}
+  },
+  "postCreateCommand": "go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8",
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go"]
+    }
+  }
+}

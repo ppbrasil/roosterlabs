@@ -1,0 +1,14 @@
+# Go
+/bin/
+*.test
+*.out
+coverage.html
+
+# Env / secrets — nunca commitar
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
