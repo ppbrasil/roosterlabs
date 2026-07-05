@@ -3,11 +3,18 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
-## 2026-07-05 — Pipeline homem+AI: loop mínimo, zero agentes novos
+## 2026-07-05 — Protocolo de épicos + 5 skills + agente revisor (supersede "zero agentes novos")
+
+- **Decisão:** o trabalho é organizado em **épicos** (outcome de negócio, arquivo em `epics/` com estados `proposto → escopado → aceito → em-execução → concluído`). O pipeline ganha peças fixas: skills `definir-epico`, `escopar-epico`, `validar-escopo`, `quebrar-epico`, `fechar-epico` e o agente `revisor` (contexto limpo), versionados em `.claude/`. Detalhe em `workflow.md`.
+- **Rationale:** a decisão anterior ("zero agentes novos") subestimava o problema real apontado por Pedro: o loop cruza três projetos sem memória compartilhada. O barramento são arquivos versionados com estados; sem ritual codificado, o protocolo evapora entre sessões. Strategy/marketing definem épicos como outcome; o detalhamento nasce do loop escopo↔validação com DoD congelado no aceite; quebra em micro-tarefas com plano de teste (edge cases) antes de código; fechamento por evidência inclui atualizar a documentação do produto e notificar marketing sobre impacto em GTM. Pedro permanece roteador e gate (seleção, aceite do DoD, merge).
+- **O que segue proibido:** orquestrador autônomo, comunicação agente-a-agente em runtime, agentes por especialidade técnica. Peças além destas voltam à regra do atrito ≥3.
+- **Reversed if:** o protocolo custar mais que o retrabalho que evita (épicos de um dia gastando dois em cerimônia) → simplificar estados/skills.
+
+## 2026-07-05 — [superseded pela entrada acima] Pipeline homem+AI: loop mínimo, zero agentes novos
 
 - **Decisão:** o processo de produção é o loop definido em `workflow.md` (spec → build → test → review → deploy → learn). Nenhum agente/skill novo é criado antecipadamente.
 - **Rationale:** criar um framework de agentes antes do primeiro deploy é over-engineering de processo. Agente/skill nasce quando um passo do loop repetir e doer.
-- **Reversed if:** um passo do loop mostrar atrito recorrente (≥3 ocorrências) → automatizar exatamente aquele passo.
+- **Reversed if:** um passo do loop mostrar atrito recorrente (≥3 ocorrências) → automatizar exatamente aquele passo. *(Revertida no mesmo dia: o gatilho não era atrito repetido, e sim a constatação de que o protocolo entre projetos precisa existir antes do uso.)*
 
 ## 2026-07-05 — Devcontainer como ambiente padrão
 

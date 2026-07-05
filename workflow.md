@@ -1,47 +1,64 @@
 # Workflow — o loop de produção homem+AI
 
-Um loop, seis passos. Pedro decide e revisa; a AI implementa; o pipeline executa.
-Regra de ouro: nenhum passo novo, agente ou ferramenta entra no processo antes de um passo existente doer ≥3 vezes.
+Princípio de arquitetura do processo: **o barramento entre projetos são arquivos versionados com estados explícitos**, não conversas. Strategy, marketing e engineering são sessões separadas sem memória compartilhada; o que não está em arquivo evapora. Pedro é o roteador entre projetos e o gate humano em três pontos: seleção do épico, aprovação do escopo/DoD, merge do PR.
 
-## O loop
+## O ciclo de épicos (macro)
 
-### 1. Spec
-- Toda unidade de trabalho nasce como issue curta (GitHub Issues): problema, resultado esperado, fora de escopo.
-- Copy, estrutura e conversão de páginas vêm de `roosterlabs-marketing`; requisitos de negócio vêm de `_strategy`. Engenharia **não inventa** copy nem posicionamento — se faltar, a issue bloqueia e o pedido sobe upstream.
-- A AI desafia a spec antes de aceitar (escopo, complexidade, traço até a prioridade única). Se não encurta o caminho para MVP + clientes pagantes, espera.
+Todo trabalho nasce de um épico — um *outcome* de negócio, nunca uma solução técnica. O épico é um arquivo em `epics/` (template em `epics/TEMPLATE.md`) com máquina de estados:
 
-### 2. Build
-- Branch por issue. AI implementa em sessão de Claude Code, commits pequenos e frequentes.
-- Alinhamento de abordagem com Pedro **antes** de codar (este arquivo e `decisions.md` são o contrato; desvios exigem conversa).
-- Código segue a stack decidida: Go stdlib-first, SQL explícito via sqlc, templates server-rendered. Dependência nova = justificativa no PR.
+```
+proposto → escopado → aceito → em-execução → concluído
+              ↑___________|        (loop de revisão)
+```
 
-### 3. Test
-- Local/devcontainer: `go build ./... && go vet ./... && go test ./...` antes de qualquer push.
-- CI (GitHub Actions) roda build + vet + test + `golangci-lint` em todo PR. PR vermelho não é revisado.
-- Cobertura pragmática: toda lógica com decisão (handlers com validação, motor de extração) tem teste; template estático não precisa.
+| # | Etapa | Quem executa | Peça | Estado resultante |
+|---|---|---|---|---|
+| 1 | Definir | Pedro + strategy/marketing | skill `definir-epico` | `proposto` |
+| 2 | Escopar | engineering | skill `escopar-epico` | `escopado` |
+| 3 | Validar | Pedro + strategy/marketing | skill `validar-escopo` | `aceito` (DoD congela) ou volta a `proposto` com notas |
+| 4 | Quebrar | engineering | skill `quebrar-epico` | `em-execução` + micro-tarefas |
+| 5 | Build/Test/Review/Deploy | engineering (por tarefa) | Claude Code + agente `revisor` | tarefas concluídas |
+| 6 | Fechar | engineering | skill `fechar-epico` | `concluído` + handoff do próximo ciclo |
 
-### 4. Review
-- Pedro revisa o diff do PR — o gargalo do loop é este passo; código explícito existe para baratear ele.
-- Roda local (`make run` / devcontainer) para ver a mudança de verdade.
-- `/security-review` obrigatório quando o PR toca input de usuário, auth ou dados de cliente.
-- Achou problema de copy/posicionamento durante a review? Não corrige local — sobe para marketing/strategy.
+### 1. Definir (strategy/marketing)
+- Épico descreve **outcome**: métrica de sucesso, restrições, fora-de-escopo. Solução técnica no texto é defeito.
+- Copy, estrutura e conversão vêm de `roosterlabs-marketing`; requisitos de negócio de `_strategy`. Engenharia não inventa nenhum dos dois.
 
-### 5. Deploy
-- Merge em `main` → GitHub Actions → build da imagem → deploy no Lambda → produção. Sem passo manual.
-- Rollback = redeploy do commit anterior (revert + merge).
+### 2–3. Escopar ↔ Validar (o loop de negociação)
+- Engineering **desafia** o épico (traço até a prioridade única: MVP + 2–3 clientes pagantes; se não encurta o caminho, devolve), propõe escopo de implementação com trade-offs como opções e um rascunho de DoD.
+- Strategy/marketing valida com olhos de negócio: o DoD mede o outcome? Aprova ou pede revisão (com notas no próprio arquivo).
+- **No aceite o DoD congela.** Mudou o DoD = novo loop de validação, explícito.
 
-### 6. Learn
-- Dados: leads no Postgres, métricas no CloudWatch, analytics da página.
-- Aprendizado vira: issue (se é engenharia) ou nota upstream em strategy/marketing (se é negócio). Nada fica só na cabeça.
+### 4. Quebrar (engineering)
+- Micro-tarefas viram issues no GitHub, cada uma com: descrição, **plano de teste com edge cases enumerados antes de qualquer código**, e traço ao item do DoD que atende.
+
+### 5. Build / Test / Review / Deploy (por tarefa)
+- Branch por tarefa. **Testes primeiro** (do plano de teste), depois implementação. Commits pequenos.
+- Local/devcontainer: `make test` antes de qualquer push. CI roda build + vet + test + lint em todo PR; PR vermelho não é revisado.
+- Review em camadas: (1) agente `revisor` — contexto limpo, ataca o diff contra tarefa, DoD e edge cases; (2) CI verde; (3) Pedro revisa o diff e roda local. `/security-review` obrigatório quando tocar input de usuário, auth ou dados de cliente.
+- Merge em `main` → deploy automático em produção. Rollback = revert + merge.
+- Problema de copy/posicionamento descoberto no meio? Não corrige local — nota no épico, sobe upstream.
+
+### 6. Fechar (engineering) — e repetir
+Invocada quando a última tarefa foi deployada e a hipótese é "DoD cumprido". Fecha **por evidência, não por sensação**:
+- Verifica o DoD item a item com prova real (testa a URL de produção, mede, consulta). Item sem evidência não fecha; item falho gera tarefas-lacuna e o épico permanece `em-execução`.
+- **Atualiza toda a documentação do produto** afetada (README, infra/, docs de domínio) para refletir o estado entregue.
+- Roteia aprendizados: engenharia → issues; negócio → notas endereçadas a strategy; **impacto em GTM → nota explícita endereçada a marketing** para ajuste quando necessário.
+- Arquiva em `epics/done/` e escreve o handoff — entregas, evidências, aprendizados, candidatos a próximo ponto de melhoria — que Pedro leva à sessão de strategy/marketing para o `definir-epico` recomeçar o ciclo.
 
 ## Papéis
 
 | Quem | Faz | Não faz |
 |---|---|---|
-| Pedro | decide spec, revisa PR, aprova deploy implícito no merge, opera contas (GitHub/AWS/Neon) | escrever boilerplate; produzir conteúdo de cliente (regra dura da estratégia) |
-| AI (Claude Code / Cowork) | desafia spec, implementa, escreve testes, prepara PR, mantém docs | mergear sem review; decidir stack/escopo sozinha; inventar copy |
+| Pedro | seleciona épico, aprova escopo/DoD, revisa PR, roteia entre projetos, opera contas | escrever boilerplate; produzir conteúdo de cliente (regra dura da estratégia) |
+| AI (Claude Code / Cowork) | desafia specs, escopa, quebra, implementa, testa, revisa (agente), mantém docs | mergear sem review; congelar DoD sozinha; inventar copy/posicionamento |
 | Pipeline (Actions) | test, lint, build, deploy, (futuro) monitoramento | — |
 
-## Quando criar um agente/skill
+## Onde vivem as peças
 
-Só quando um passo do loop repetir com atrito ≥3 vezes. Então: automatizar **aquele passo específico**, registrar em `decisions.md`, versionar em `.claude/` neste repo. Nunca criar agente "por completude".
+- Skills e agente: `.claude/skills/` e `.claude/agents/` neste repo (versionados). No Claude Code funcionam nativamente; para usar nas sessões Cowork de strategy/marketing, Pedro instala as skills correspondentes em Settings > Capabilities a partir destes arquivos-fonte.
+- Épicos: `epics/` neste repo. Strategy/marketing precisam da pasta acessível nas sessões deles (mesmo esquema do symlink `_strategy`, direção inversa).
+
+## Quando criar uma peça nova
+
+As peças acima existem porque o protocolo entre projetos precisa existir *antes* do uso — sem ele o processo evapora entre sessões. Qualquer peça além destas volta à regra: só quando um passo repetir com atrito ≥3 vezes, automatizando aquele passo específico, com registro em `decisions.md`. Nunca criar agente por completude.
