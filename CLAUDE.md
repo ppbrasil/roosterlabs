@@ -24,6 +24,7 @@ Marketing owns what pages say and how they convert; engineering implements. If i
 - Automate from the first commit: CI/CD, deploys, monitoring. Manual release processes contradict the company's own thesis.
 - Build for the current step, not imagined scale. Over-engineering is the main failure mode to police.
 - Stack and repo layout are **decided** — see `decisions.md` (Go monolith server-rendered, AWS Lambda + CloudFront + Neon, monorepo) and `workflow.md` (the human+AI production loop). Read both before any work; changing them requires explicit alignment with Pedro.
+- Code follows the dependency rule in `docs/conventions.md` (6 rules: package-by-domain, dependency direction, thin handlers, SQL via sqlc only, no speculative interfaces, stateless). Violations are review-blocking.
 
 ## How to work in this project
 

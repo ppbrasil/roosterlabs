@@ -3,6 +3,18 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-05 — Paradigma arquitetural: regra de dependência, sem Clean Architecture nominal
+
+- **Decisão:** o paradigma do código é a **regra de dependência** (negócio cego para infra; setas apontam do detalhe para o negócio), instanciada nas 6 regras de `docs/conventions.md`: pacote por domínio, direção de dependência, handler fino, SQL só via sqlc no domínio dono, interface só com segundo implementador, stateless. Clean Architecture **nominal** (anéis, use cases, repositories, interfaces por padrão) foi rejeitada.
+- **Rationale:** a versão nominal exige 3–4 indireções para gravar um e-mail; o ganho dessas peças só existe com múltiplas implementações ou times paralelos — não temos nenhum dos dois. As 6 regras entregam o valor real (domínio testável sem HTTP, infra trocável — nosso contrato de portabilidade) com custo mínimo de leitura/revisão, o critério dominante de Pedro. Enforcement: `revisor` + review; lint mecânico (depguard) quando violação repetir ≥3.
+- **Reversed if:** segundo implementador real de um port (ex.: segundo storage), ou o monolito crescer a ponto de times/AI paralelos colidirem — aí a cerimônia adicional se paga e vira decisão nova.
+
+## 2026-07-05 — Skills de build por camada (front/back): rejeitado
+
+- **Decisão:** não haverá skills de build especializadas por camada técnica ou linguagem. Build permanece genérico; contenção de contexto é responsabilidade do blast radius declarado por tarefa.
+- **Rationale:** a stack tem um paradigma só (Go server-rendered) — não há camada para uma skill possuir; skill por camada reintroduziria no processo a diversidade eliminada na stack, criaria decisão de roteamento por tarefa e viés contra tarefas que cruzam camadas (a maioria). O blast radius reduz contexto cirurgicamente, por tarefa. Especialização futura legítima é por **disciplina** (ex.: prompt/eval do motor de extração), governada pela regra do atrito ≥3.
+- **Reversed if:** surgir camada realmente distinta (front rico em JS, mobile) ou disciplina com convenções próprias e atrito comprovado.
+
 ## 2026-07-05 — Protocolo de épicos + 5 skills + agente revisor (supersede "zero agentes novos")
 
 - **Decisão:** o trabalho é organizado em **épicos** (outcome de negócio, arquivo em `epics/` com estados `proposto → escopado → aceito → em-execução → concluído`). O pipeline ganha peças fixas: skills `definir-epico`, `escopar-epico`, `validar-escopo`, `quebrar-epico`, `fechar-epico` e o agente `revisor` (contexto limpo), versionados em `.claude/`. Detalhe em `workflow.md`.
