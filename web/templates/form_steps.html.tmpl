@@ -1,0 +1,231 @@
+{{define "form_step_1_pt"}}
+<div id="lead-form" class="form-card">
+  <h3>1. O que descreve melhor voce?</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/1" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Consultor, advisor ou fractional"> Consultor, advisor ou fractional</label>
+    <label><input type="radio" name="choice" value="Fundador de negocio de servicos"> Fundador de negocio de servicos</label>
+    <label><input type="radio" name="choice" value="Executivo ou lider em empresa"> Executivo ou lider em empresa</label>
+    <label><input type="radio" name="choice" value="Especialista senior"> Especialista senior</label>
+    <label><input type="radio" name="choice" value="Outro"> Outro</label>
+    <input type="text" name="other" placeholder="Se marcou Outro, detalhe aqui">
+    <button type="submit">Continuar</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_2_pt"}}
+<div id="lead-form" class="form-card">
+  <h3>2. Seu principal objetivo ao construir autoridade?</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/2" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Gerar negocios"> Gerar negocios</label>
+    <label><input type="radio" name="choice" value="Crescer na carreira"> Crescer na carreira</label>
+    <label><input type="radio" name="choice" value="Outro"> Outro</label>
+    <input type="text" name="other" placeholder="Se marcou Outro, detalhe aqui">
+    <button type="submit">Continuar</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_3_pt"}}
+<div id="lead-form" class="form-card">
+  <h3>3. Hoje, seu LinkedIn esta...</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/3" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Parado"> Parado</label>
+    <label><input type="radio" name="choice" value="Posts de vez em quando"> Posts de vez em quando</label>
+    <label><input type="radio" name="choice" value="Publico com consistencia"> Publico com consistencia</label>
+    <button type="submit">Continuar</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_4_pt"}}
+<div id="lead-form" class="form-card">
+  <h3>4. Seu maior desafio?</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/4" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Saber sobre o que postar"> Saber sobre o que postar</label>
+    <label><input type="radio" name="choice" value="Definir meu take"> Definir meu take</label>
+    <label><input type="radio" name="choice" value="Escrever/montar o post"> Escrever/montar o post</label>
+    <label><input type="radio" name="choice" value="Manter consistencia"> Manter consistencia</label>
+    <label><input type="radio" name="choice" value="Tempo"> Tempo</label>
+    <button type="submit">Continuar</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_5_pt"}}
+<div id="lead-form" class="form-card">
+  <h3>5. Quase la</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/5" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label>E-mail
+      <input type="email" name="email" required>
+    </label>
+    <label>URL do LinkedIn
+      <input type="url" name="linkedin" required placeholder="https://www.linkedin.com/in/seu-perfil">
+    </label>
+    <button type="submit">Quero uma vaga no alfa</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_6_pt"}}
+<div id="lead-form" class="form-card form-success">
+  <h3>Recebido.</h3>
+  <p>Voce esta na fila das vagas alfa e entraremos em contato em breve por {{.ContactEmail}}.</p>
+</div>
+{{end}}
+
+{{define "form_step_1_en"}}
+<div id="lead-form" class="form-card">
+  <h3>1. What best describes you?</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/1" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Consultant, advisor or fractional"> Consultant, advisor or fractional</label>
+    <label><input type="radio" name="choice" value="Service-business founder"> Service-business founder</label>
+    <label><input type="radio" name="choice" value="Executive or leader at a company"> Executive or leader at a company</label>
+    <label><input type="radio" name="choice" value="Senior specialist"> Senior specialist</label>
+    <label><input type="radio" name="choice" value="Other"> Other</label>
+    <input type="text" name="other" placeholder="If Other, add more detail">
+    <button type="submit">Continue</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_2_en"}}
+<div id="lead-form" class="form-card">
+  <h3>2. Your main goal in building authority?</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/2" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Generate business"> Generate business</label>
+    <label><input type="radio" name="choice" value="Grow my career"> Grow my career</label>
+    <label><input type="radio" name="choice" value="Other"> Other</label>
+    <input type="text" name="other" placeholder="If Other, add more detail">
+    <button type="submit">Continue</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_3_en"}}
+<div id="lead-form" class="form-card">
+  <h3>3. Right now, your LinkedIn is...</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/3" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Dormant"> Dormant</label>
+    <label><input type="radio" name="choice" value="Occasional posts"> Occasional posts</label>
+    <label><input type="radio" name="choice" value="Consistently active"> Consistently active</label>
+    <button type="submit">Continue</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_4_en"}}
+<div id="lead-form" class="form-card">
+  <h3>4. Your biggest challenge?</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/4" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label><input type="radio" name="choice" value="Knowing what to post about"> Knowing what to post about</label>
+    <label><input type="radio" name="choice" value="Defining my take"> Defining my take</label>
+    <label><input type="radio" name="choice" value="Writing/assembling the post"> Writing/assembling the post</label>
+    <label><input type="radio" name="choice" value="Staying consistent"> Staying consistent</label>
+    <label><input type="radio" name="choice" value="Time"> Time</label>
+    <button type="submit">Continue</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_5_en"}}
+<div id="lead-form" class="form-card">
+  <h3>5. Almost there</h3>
+  {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+  <form hx-post="/form/5" hx-target="#lead-form" hx-swap="outerHTML">
+    <input type="hidden" name="lang" value="{{.Lang}}">
+    <input type="hidden" name="page_path" value="{{.PagePath}}">
+    <input type="hidden" name="utm_source" value="{{.UTM.Source}}">
+    <input type="hidden" name="utm_medium" value="{{.UTM.Medium}}">
+    <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
+    <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
+    <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
+    <label>Email
+      <input type="email" name="email" required>
+    </label>
+    <label>LinkedIn URL
+      <input type="url" name="linkedin" required placeholder="https://www.linkedin.com/in/your-profile">
+    </label>
+    <button type="submit">Get an alpha seat</button>
+  </form>
+</div>
+{{end}}
+
+{{define "form_step_6_en"}}
+<div id="lead-form" class="form-card form-success">
+  <h3>Got it.</h3>
+  <p>You are in line for an alpha seat and we will reach out soon at {{.ContactEmail}}.</p>
+</div>
+{{end}}

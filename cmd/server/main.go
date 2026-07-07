@@ -12,9 +12,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
+	"github.com/roosterlabs/roosterlabs-engineering/internal/leads"
 	"github.com/roosterlabs/roosterlabs-engineering/internal/server"
 )
 
@@ -27,7 +29,33 @@ func main() {
 		port = "8080" // default do Lambda Web Adapter
 	}
 
-	handler, err := server.NewHandler()
+	ctx, cancelConnect := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancelConnect()
+
+	var store leads.Store
+	var err error
+	databaseURL := strings.TrimSpace(os.Getenv("DATABASE_URL"))
+	if databaseURL != "" {
+		store, err = leads.NewPostgresStore(ctx, databaseURL)
+		if err != nil {
+			logger.Error("failed to connect to postgres", "err", err)
+			os.Exit(1)
+		}
+		defer func() {
+			if err := store.Close(); err != nil {
+				logger.Error("failed to close store", "err", err)
+			}
+		}()
+	} else {
+		logger.Warn("DATABASE_URL not set, using memory store")
+		store = leads.NewMemoryStore()
+	}
+
+	handler, err := server.NewHandler(server.Config{
+		Store:        store,
+		BaseURL:      os.Getenv("BASE_URL"),
+		ContactEmail: os.Getenv("CONTACT_EMAIL"),
+	})
 	if err != nil {
 		logger.Error("failed to build handler", "err", err)
 		os.Exit(1)

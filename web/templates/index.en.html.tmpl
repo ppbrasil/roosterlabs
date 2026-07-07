@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoosterLabs | Auto-Authenticity</title>
+  <meta name="description" content="RoosterLabs runs the whole path of your LinkedIn content from your real point of view.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="RoosterLabs | Auto-Authenticity">
+  <meta property="og:description" content="Being authentic does not mean doing all the work.">
+  <meta property="og:url" content="{{.BaseURL}}{{.PagePath}}">
+  <meta property="og:image" content="{{.OGImageURL}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RoosterLabs | Auto-Authenticity">
+  <meta name="twitter:description" content="Being authentic does not mean doing all the work.">
+  <meta name="twitter:image" content="{{.OGImageURL}}">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/site.css">
+  <script defer src="https://unpkg.com/htmx.org@2.0.1"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
+  <header class="site-header">
+    <p class="eyebrow">AUTO-AUTHENTICITY™</p>
+    <a href="/" class="lang-link">Versao em portugues</a>
+    <h1>Being authentic does not mean doing all the work.</h1>
+    <p class="lead">RoosterLabs runs the whole path of your LinkedIn content from the right topic to publishing. AI does the heavy lifting; the authority is yours.</p>
+  </header>
+
+  <main>
+    <section class="section">
+      <h2>Knowing was never your problem. Publishing is.</h2>
+      <p>Publishing consistently takes a system: trigger, take, structure, and weekly repetition. Without a system, consistency dies.</p>
+    </section>
+
+    <section class="section">
+      <h2>From trigger to published, with you at the center.</h2>
+      <ol>
+        <li>We watch your field for worthy triggers.</li>
+        <li>We capture your take in a short conversation.</li>
+        <li>We build the post around your perspective.</li>
+        <li>You approve and publish every week.</li>
+      </ol>
+      <p class="note">Transparency note: 100% software from trigger to draft. No human writes for you.</p>
+    </section>
+
+    <section class="section form-section">
+      <h2>Alpha seats are open, few on purpose.</h2>
+      {{template "form_step_1_en" .}}
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>RoosterLabs · contact: <a href="mailto:{{.ContactEmail}}">{{.ContactEmail}}</a> · <a href="/">Versao em portugues</a></p>
+  </footer>
+</body>
+</html>

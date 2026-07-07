@@ -1,27 +1,69 @@
 # Infra — deploy interino (AWS Lambda + CloudFront + Neon)
 
-Racional em `../decisions.md`. Estado: **não provisionado ainda**.
+Racional em `../decisions.md`.
 
 ## O desenho
 
 ```
-visitante → CloudFront (cache borda, domínio roosterlabs.com.br)
-              → Lambda Function URL → container (Web Adapter → servidor Go)
-                                          → Neon Postgres (connection string via env)
+visitante → CloudFront (cache borda GET + domínio roosterlabs.com.br)
+              → Lambda Function URL → container Go (Lambda Web Adapter)
+                                          → Neon Postgres (DATABASE_URL)
 ```
 
-## Setup primeira vez (Pedro — exige credenciais)
+## IaC (Terraform)
 
-1. Conta AWS + usuário/role administrativo com MFA.
-2. GitHub: criar repo e fazer push deste diretório.
-3. AWS: OIDC provider para GitHub Actions (deploy sem secrets estáticos).
-4. ECR: repositório `roosterlabs-server`.
-5. Lambda: função a partir da imagem ECR + Function URL.
-6. CloudFront: distribuição apontando para a Function URL; cache para GET, bypass para POST; domínio + certificado (ACM).
-7. Neon: projeto free tier → `DATABASE_URL` como env do Lambda (via Secrets Manager quando houver dado real).
+Código em `infra/terraform/` provisiona:
 
-Passos 3–6 serão codificados (IaC) na primeira sessão de deploy — nada manual permanece.
-A automação do deploy entra em `.github/workflows/` na mesma sessão.
+- ECR (`roosterlabs-server`)
+- Lambda (package image) + Function URL
+- CloudFront + alias de domínio
+- Route53 record de apex
+- OIDC provider + role de deploy para GitHub Actions
+
+Arquivos principais:
+
+- `providers.tf`
+- `variables.tf`
+- `main.tf`
+- `outputs.tf`
+
+### Variáveis obrigatórias
+
+- `hosted_zone_id`
+- `database_url`
+- `acm_certificate_arn`
+- `github_owner`
+- `github_repo`
+
+## Passo-a-passo de primeira provisão
+
+1. Configurar credenciais AWS locais (`aws configure`) com permissão de admin inicial.
+2. Entrar em `infra/terraform/`.
+3. Rodar `terraform init`.
+4. Rodar `terraform plan -var='hosted_zone_id=...' -var='database_url=...' -var='acm_certificate_arn=...' -var='github_owner=...' -var='github_repo=...'`.
+5. Rodar `terraform apply` com os mesmos `-var`.
+6. Registrar output `github_actions_role_arn` como secret `AWS_DEPLOY_ROLE_ARN` no GitHub.
+7. Criar secret `AWS_REGION` se quiser sobrescrever `us-east-1`.
+
+## Deploy automático
+
+Workflow: `.github/workflows/deploy.yml`.
+
+Fluxo em `main`:
+
+1. executa build + vet + test;
+2. assume role via OIDC;
+3. builda/pusha imagem no ECR;
+4. atualiza imagem da Lambda;
+5. aguarda função atualizada e imprime resumo.
+
+## Operação de dados (Neon)
+
+Aplicar schema inicial no SQL editor do Neon:
+
+- `internal/leads/migrations/001_init.sql`
+
+Queries operacionais ficam em `internal/leads/queries.sql`.
 
 ## VPC própria (futuro)
 

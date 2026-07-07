@@ -1,7 +1,7 @@
 # Build
 FROM golang:1.24 AS build
 WORKDIR /src
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/server
@@ -12,7 +12,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/server 
 # roda em Lambda hoje e em ECS/Fargate (VPC própria) amanhã.
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt/extensions/lambda-adapter
-COPY --from=build /out/server /server
+# --chmod garante bit de execução para o usuário não-root do Lambda;
+# sem isso o modo do arquivo depende do umask do ambiente de build.
+COPY --from=build --chmod=0755 /out/server /server
 ENV PORT=8080
 EXPOSE 8080
 ENTRYPOINT ["/server"]

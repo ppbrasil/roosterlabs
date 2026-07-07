@@ -1,10 +1,17 @@
 {
   "name": "roosterlabs-engineering",
-  "image": "mcr.microsoft.com/devcontainers/go:1-1.24-bookworm",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/aws-cli:1": {}
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {}
   },
+  "mounts": [
+    "source=${localWorkspaceFolder}/../roosterlabs-strategy,target=/workspaces/roosterlabs-strategy,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/../roosterlabs-marketing,target=/workspaces/roosterlabs-marketing,type=bind,consistency=cached"
+  ],
   "postCreateCommand": "go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8",
   "customizations": {
     "vscode": {

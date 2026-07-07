@@ -3,6 +3,12 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-06 — IaC padrão: Terraform para o stack AWS da landing
+
+- **Decisão:** o provisionamento de infra da landing em AWS (ECR, Lambda, CloudFront, Route53 e role OIDC para Actions) passa a ser feito com **Terraform** em `infra/terraform/`.
+- **Rationale:** Terraform é dominante na rede de apoio AWS do Pedro e maximiza transferibilidade para a VPC futura. Mantém estado infra versionado, reduz drift e elimina passos manuais permanentes de setup/deploy.
+- **Reversed if:** o custo de manutenção de módulos/estado superar o ganho operacional para nosso tamanho (ex.: stack encolher para um único serviço gerenciado com provisionamento declarativo mais simples no mesmo nível de controle).
+
 ## 2026-07-05 — Paradigma arquitetural: regra de dependência, sem Clean Architecture nominal
 
 - **Decisão:** o paradigma do código é a **regra de dependência** (negócio cego para infra; setas apontam do detalhe para o negócio), instanciada nas 6 regras de `docs/conventions.md`: pacote por domínio, direção de dependência, handler fino, SQL só via sqlc no domínio dono, interface só com segundo implementador, stateless. Clean Architecture **nominal** (anéis, use cases, repositories, interfaces por padrão) foi rejeitada.

@@ -3,15 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RoosterLabs</title>
-  <meta name="robots" content="noindex">
-  <!-- Placeholder. A landing definitiva vem de roosterlabs-marketing (copy) -->
-  <!-- + visual-identity.md. Não escrever copy aqui. -->
+  <title>RoosterLabs | Auto-Autenticidade</title>
+  <meta name="description" content="A RoosterLabs cuida do caminho inteiro do seu conteudo no LinkedIn, sempre do seu ponto de vista real.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="RoosterLabs | Auto-Autenticidade">
+  <meta property="og:description" content="Ser autentico nao significa fazer todo o trabalho.">
+  <meta property="og:url" content="{{.BaseURL}}{{.PagePath}}">
+  <meta property="og:image" content="{{.OGImageURL}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RoosterLabs | Auto-Autenticidade">
+  <meta name="twitter:description" content="Ser autentico nao significa fazer todo o trabalho.">
+  <meta name="twitter:image" content="{{.OGImageURL}}">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/site.css">
+  <script defer src="https://unpkg.com/htmx.org@2.0.1"></script>
+  <script defer src="/static/app.js"></script>
 </head>
-<body>
+<body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
+  <header class="site-header">
+    <p class="eyebrow">AUTO-AUTENTICIDADE™</p>
+    <a href="/en/" class="lang-link">English version</a>
+    <h1>Ser autentico nao significa fazer todo o trabalho.</h1>
+    <p class="lead">A RoosterLabs cuida do caminho inteiro do seu conteudo no LinkedIn. A IA faz o trabalho pesado; a autoridade construida e sua.</p>
+  </header>
+
   <main>
-    <h1>RoosterLabs</h1>
-    <p>Em construção.</p>
+    <section class="section">
+      <h2>Saber nunca foi o seu problema. Publicar, sim.</h2>
+      <p>Publicar com consistencia exige um processo inteiro: gatilho, take, estrutura e repeticao semanal. Sem esse sistema, a consistencia morre.</p>
+    </section>
+
+    <section class="section">
+      <h2>Do gatilho a publicacao, com voce no centro.</h2>
+      <ol>
+        <li>Ficamos de olho nos gatilhos do seu campo.</li>
+        <li>Capturamos seu take em conversa rapida.</li>
+        <li>Montamos o post com a sua visao.</li>
+        <li>Voce aprova e publica toda semana.</li>
+      </ol>
+      <p class="note">Nota de transparencia: 100% software, do gatilho ao rascunho. Nenhum humano escreve por voce.</p>
+    </section>
+
+    <section class="section form-section">
+      <h2>Vagas alfa abertas, poucas de proposito.</h2>
+      {{template "form_step_1_pt" .}}
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <p>RoosterLabs · contato: <a href="mailto:{{.ContactEmail}}">{{.ContactEmail}}</a> · <a href="/en/">English version</a></p>
+  </footer>
 </body>
 </html>
