@@ -320,7 +320,7 @@ Verificação por evidência executada em 2026-07-07 (produção). **9 de 11 ite
 - **G1 — OG image PNG (DoD 5).** `og:image` precisa ser raster (PNG/JPG, 1200×630). Asset é propriedade de marketing (nota upstream abaixo); engineering serve o arquivo e troca as metatags. Blast radius: `web/static/`, `web/templates/index*.html.tmpl`.
 - **G2 — Captura de UTM à prova de cache (DoD 2/3).** Confirmado em produção: CloudFront ignora query string no cache key e serve HTML com UTMs do primeiro visitante (`?utm_source=BBB` recebeu página com `AAA`). Fix: ler UTMs no browser via `location.search` (preencher beacon e hidden inputs no client), mantendo o cache de borda. Rejeitado: query string no cache key (mata o hit ratio; cada variação de UTM viraria invocação de Lambda). Blast radius: `web/static/app.js`, `web/templates/form_steps.html.tmpl`, `internal/server/*`.
 
-### Aprendizados de engenharia (roteados para `docs/backlog.md`)
+### Aprendizados de engenharia (roteados para o backlog unificado, `_strategy/backlog.md`)
 
 1. Deploy não espera CI (T11 previa bloqueio; workflows correm em paralelo) — lint quebrado foi ao ar.
 2. Drift manual na AWS: permissão `lambda:InvokeFunction` adicionada via CLI fora do Terraform.

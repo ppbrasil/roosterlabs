@@ -4,11 +4,11 @@ Princípio de arquitetura do processo: **o barramento entre projetos são arquiv
 
 ## O ciclo de épicos (macro)
 
-Todo trabalho nasce de um épico. Três tipos válidos (decisão 2026-07-07; ver `guardrails.md`):
+Todo trabalho nasce de um épico. Três tipos válidos (decisão 2026-07-07; ver `_strategy/guardrails.md`):
 
 1. **Outcome** — resultado de negócio mensurável.
 2. **Output** — entrega concreta e verificável (válido em fase inicial, onde ainda não há tráfego para medir outcome).
-3. **Backpack-relief** — alívio de dívida registrada (técnica, design, UX, copy). Cada item puxado de um backlog nomeia o **padrão comprometido que viola** e o **canal de erosão que alimenta** (`guardrails.md`); item que não aponta guardrail não entra. Escopo congela no aceite; DoD = desvio eliminado, verificado. Propriedade não muda: o dono do domínio define o certo, o épico executa.
+3. **Backpack-relief** — alívio de dívida registrada (técnica, design, UX, copy). Itens vêm do **backlog unificado** (`_strategy/backlog.md`), cada um nomeando o **padrão comprometido que viola** e o **canal de erosão que alimenta** (`_strategy/guardrails.md`); item que não aponta guardrail não entra. Escrever no backlog é distribuído (qualquer projeto adiciona); priorizar é centralizado (só na sessão de strategy com Pedro). Escopo congela no aceite; DoD = desvio eliminado, verificado. Propriedade não muda: o dono do domínio define o certo, o épico executa.
 
 "Solução técnica como tema" continua sendo defeito — o que legitima trabalho técnico é dívida registrada contra guardrail, nunca o tema. O épico é um arquivo em `epics/` (template em `epics/TEMPLATE.md`) com máquina de estados:
 
@@ -27,7 +27,7 @@ proposto → escopado → aceito → em-execução → concluído
 | 6 | Fechar | engineering | skill `fechar-epico` | `concluído` + handoff do próximo ciclo |
 
 ### 1. Definir (strategy/marketing)
-- Épico descreve **outcome, output ou backpack-relief** (tipos acima). Em fase inicial, um output concreto e verificável — "landing no ar em roosterlabs.com.br capturando leads" — é épico válido; não forçar métrica onde ainda não há tráfego para medi-la. Backpack-relief nasce dos backlogs de dívida (engineering: `docs/backlog.md`; marketing: equivalente lá), nunca de tema genérico.
+- Épico descreve **outcome, output ou backpack-relief** (tipos acima). Em fase inicial, um output concreto e verificável — "landing no ar em roosterlabs.com.br capturando leads" — é épico válido; não forçar métrica onde ainda não há tráfego para medi-la. Backpack-relief nasce do backlog unificado (`_strategy/backlog.md`), nunca de tema genérico.
 - Copy, estrutura e conversão vêm de `roosterlabs-marketing`; requisitos de negócio de `_strategy`. Engenharia não inventa nenhum dos dois.
 
 ### 2–3. Escopar ↔ Validar (o loop de transparência)
