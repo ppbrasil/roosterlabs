@@ -17,7 +17,9 @@
   <meta name="twitter:image" content="{{.OGImageURL}}">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/site.css">
-  <script defer src="https://unpkg.com/htmx.org@2.0.1"></script>
+  <!-- htmx vendorado em /static: unpkg travou em produção (2026-07-07);
+       CDN de terceiro no caminho crítico do form é risco desnecessário. -->
+  <script defer src="/static/htmx.min.js"></script>
   <script defer src="/static/app.js"></script>
 </head>
 <body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
