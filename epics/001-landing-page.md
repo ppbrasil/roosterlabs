@@ -297,4 +297,43 @@ Ordem de ataque confirmada para execução: **T1 → T2 → T3 → T4 → T5 →
 
 ## Fechamento (skill `fechar-epico`)
 
-- —
+Verificação por evidência executada em 2026-07-07 (produção). **9 de 11 itens fechados; 2 tarefas-lacuna abertas → épico permanece `em-execução` até G1 e G2 fecharem.**
+
+### DoD — evidências
+
+| # | Item | Veredito | Evidência |
+|---|---|---|---|
+| 1 | Landing PT/EN em produção com navegação | ✅ | `GET /` e `/en/` 200 em produção; navegação entre idiomas nos dois sentidos |
+| 2 | Lead ponta a ponta com variáveis + UTMs | ✅ com ressalva (ver G2) | 2 leads de teste gravados em produção com `utm_source=li`, `utm_campaign=close-test`; ressalva: UTMs corretos só em cache miss |
+| 3 | Funil instrumentado (view + resposta por pergunta) | ✅ | query em `funnel_events` retornou view → answer 1-4 → submit da submissão de teste, com UTMs |
+| 4 | Pedro consulta leads/conversão sozinho no Neon | ✅ | Pedro executou as queries e confirmou os registros |
+| 5 | Preview OG correto LinkedIn/WhatsApp | ❌ → G1 | card renderiza sem imagem: `og:image` é SVG, não suportado pelas plataformas |
+| 6 | Usável em mobile (~390px) | ✅ | verificação de Pedro em dispositivo real: página e form completos utilizáveis |
+| 7 | Footer com e-mail de contato | ✅ | `contact@roosterlabs.com.br` presente nas duas páginas |
+| 8 | Merge em `main` → produção sem passo manual | ✅ | deploys automáticos observados (correções do dia foram ao ar via push) |
+| 9 | CI verde (build+vet+test+lint) | ✅ | CI verde após correção de lint; histórico no Actions |
+| 10 | Docs refletem o estado entregue | ✅ | `infra/README.md` (runbook), `decisions.md` e este fechamento atualizados em 2026-07-07 |
+| 11 | Custo ≤ ~US$1/mês | ✅ (conferir fatura) | Route 53 ~US$0,50; Lambda/CloudFront/ECR/Neon no free tier; conferir primeira fatura no fim do mês |
+
+### Tarefas-lacuna (bloqueiam `concluído`)
+
+- **G1 — OG image PNG (DoD 5).** `og:image` precisa ser raster (PNG/JPG, 1200×630). Asset é propriedade de marketing (nota upstream abaixo); engineering serve o arquivo e troca as metatags. Blast radius: `web/static/`, `web/templates/index*.html.tmpl`.
+- **G2 — Captura de UTM à prova de cache (DoD 2/3).** Confirmado em produção: CloudFront ignora query string no cache key e serve HTML com UTMs do primeiro visitante (`?utm_source=BBB` recebeu página com `AAA`). Fix: ler UTMs no browser via `location.search` (preencher beacon e hidden inputs no client), mantendo o cache de borda. Rejeitado: query string no cache key (mata o hit ratio; cada variação de UTM viraria invocação de Lambda). Blast radius: `web/static/app.js`, `web/templates/form_steps.html.tmpl`, `internal/server/*`.
+
+### Aprendizados de engenharia (roteados para `docs/backlog.md`)
+
+1. Deploy não espera CI (T11 previa bloqueio; workflows correm em paralelo) — lint quebrado foi ao ar.
+2. Drift manual na AWS: permissão `lambda:InvokeFunction` adicionada via CLI fora do Terraform.
+3. `www.roosterlabs.com.br` não resolve (sem record/alias).
+4. Renderização parcial de HTML em erro de template (buffer antes de escrever).
+5. Ops de segurança: senha do Neon exposta em sessão de trabalho (rotacionar) e uso de credenciais root da AWS (criar IAM admin).
+6. Actions com warnings de deprecação do Node 20 (bump de versões).
+
+### Nota upstream → marketing
+
+- **OG asset:** gerar imagem raster 1200×630 (PNG/JPG) da identidade v0.3 para preview em LinkedIn/WhatsApp; o SVG atual não renderiza nas plataformas. Bloqueia G1.
+- **Próximo épico:** Pedro quer melhorias de conteúdo e comportamento da landing. Copy/estrutura/conversão são propriedade de marketing — definir lá o outcome (ex.: "links compartilhados convertem: preview renderiza + atribuição de canal confiável") e trazer via `definir-epico`. G1+G2 entram como base técnica desse épico.
+
+### Handoff
+
+Landing em produção capturando leads qualificados com funil instrumentado; deploy contínuo funcionando; custo ~US$0,50/mês. Sistema provisionado do zero em um dia com 6 defeitos reais encontrados e corrigidos por evidência (entrypoint distroless, política de Host do CloudFront, permissão dupla de Function URL, template parcial, CDN de terceiro no caminho crítico, cache × UTM). Próximo ciclo: fechar G1/G2 e definir o épico de melhoria da landing em marketing.

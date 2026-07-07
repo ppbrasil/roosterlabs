@@ -3,6 +3,24 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-07 — Épicos backpack-relief + registro de guardrails
+
+- **Decisão:** épicos passam a ter três tipos válidos: outcome, output e **backpack-relief** (alívio de dívida técnica, de design, de UX ou de copy). Criado `guardrails.md` — registro fechado de valores, canais de erosão e padrões comprometidos. Item de dívida só é válido apontando um guardrail: **padrão que viola + canal de erosão que alimenta**. Sem guardrail correspondente: ou se propõe refinar a lista (decisão explícita) ou o item não entra.
+- **Rationale:** a regra anterior ("épico = outcome, nunca solução técnica") deixava dívida sem métrica — design que corrói credibilidade, UX que corrói retenção, copy que corrói venda — sem caminho legítimo, acumulando erosão de valor invisível. A mochila leve é guardrail de negócio: dívida é peso que taxa a velocidade contínua. O rigor não caiu, mudou de lugar: do tipo do épico para o item (padrão violado nomeado, escopo congelado, dono do domínio intocado). "Desvio de padrão comprometido" separa dívida de preferência sem exigir métrica.
+- **Reversed if:** backpack-relief virar esconderijo de over-engineering ou de polimento além do padrão (violaria "decent, not polished") — aí o tipo sai e dívida volta a só entrar como tarefa dentro de épicos de outcome/output.
+
+## 2026-07-07 — Dependências de frontend vendoradas, nunca CDN de terceiro no caminho crítico
+
+- **Decisão:** bibliotecas JS/CSS que a página precisa para funcionar (hoje: htmx) são servidas de `/static/` no nosso próprio pipeline, com o arquivo versionado no repo. CDN de terceiro (unpkg, jsdelivr) é proibido no caminho crítico de conversão.
+- **Rationale:** o unpkg travou em produção no dia do lançamento e o botão do form morreu silenciosamente — nossa única ação de conversão dependia do uptime de um serviço gratuito de terceiro. Vendorar custa um arquivo de ~50KB no repo e elimina a classe inteira de falha; CloudFront já nos dá a borda que o CDN daria.
+- **Reversed if:** N/A para o caminho crítico. Assets decorativos podem usar CDN se houver razão.
+
+## 2026-07-07 — Container do Lambda: distroless variante root; primeira provisão exige push manual de imagem
+
+- **Decisão:** a imagem de produção usa `gcr.io/distroless/static-debian12:latest` (variante root), não `:nonroot`. Registrado também o procedimento de primeira provisão: o Lambda exige que a imagem exista no ECR antes do `terraform apply` completar — bootstrap manual (`docker build --platform linux/amd64 --provenance=false --sbom=false` + push) uma única vez; depois o CI assume.
+- **Rationale:** o Lambda executa a imagem com usuário sandbox próprio e falha com `Runtime.InvalidEntrypoint`/`permission denied` na variante nonroot (workdir `/home/nonroot` inacessível — ver ko-build/ko#669); custou horas de debug com binário e permissões comprovadamente corretos. Detalhes operacionais (flags de build, CloudFront `AllViewerExceptHostHeader`, permissão dupla de Function URL pós-out/2025) documentados em `infra/README.md`.
+- **Reversed if:** migração para ECS/Fargate (VPC própria) → voltar a `:nonroot`, que é o hardening correto fora do Lambda.
+
 ## 2026-07-06 — IaC padrão: Terraform para o stack AWS da landing
 
 - **Decisão:** o provisionamento de infra da landing em AWS (ECR, Lambda, CloudFront, Route53 e role OIDC para Actions) passa a ser feito com **Terraform** em `infra/terraform/`.
