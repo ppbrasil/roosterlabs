@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"net/mail"
 	"net/url"
@@ -182,19 +181,4 @@ func validateFinal(values map[string]string) string {
 		return "A URL precisa ser do dominio linkedin.com."
 	}
 	return ""
-}
-
-func hiddenUTM(utm leads.UTM) template.HTML {
-	parts := []string{
-		hiddenInput("utm_source", utm.Source),
-		hiddenInput("utm_medium", utm.Medium),
-		hiddenInput("utm_campaign", utm.Campaign),
-		hiddenInput("utm_term", utm.Term),
-		hiddenInput("utm_content", utm.Content),
-	}
-	return template.HTML(strings.Join(parts, "\n"))
-}
-
-func hiddenInput(name, value string) string {
-	return fmt.Sprintf(`<input type="hidden" name="%s" value="%s">`, template.HTMLEscapeString(name), template.HTMLEscapeString(value))
 }
