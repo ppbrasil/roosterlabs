@@ -20,7 +20,7 @@ jobs:
       # golangci-lint v2 (regras mais estritas, config nova) — migração real,
       # fora do orçamento de diff deste bump. Fica em node20 até essa
       # decisão ser tomada à parte (ver nota no épico 002, T6).
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v9
         with:
           version: v1.64.8
 
