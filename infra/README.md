@@ -57,6 +57,10 @@ Fluxo em `main`:
 4. atualiza imagem da Lambda;
 5. aguarda função atualizada e imprime resumo.
 
+## `www.` redireciona para o apex (épico 002)
+
+`www.roosterlabs.com.br` é servido pela mesma distribuição CloudFront (alias adicional, cert ACM já é wildcard) e recebe um `A` record próprio no Route53. O redirect 301 para o apex é feito pelo servidor Go com base no header `Host` — não há segunda distribuição nem Lambda@Edge (mais simples, mesmo container).
+
 ## Operação de dados (Neon)
 
 Aplicar schema inicial no SQL editor do Neon:
@@ -100,7 +104,26 @@ terraform apply ...   # retomará de onde parou
 | Sintoma | Causa | Fix |
 |---|---|---|
 | 403 `AccessDeniedException` via CloudFront | política `Managed-AllViewer` encaminha o header `Host` do visitante; Function URL rejeita Host ≠ o dela | origin request policy `Managed-AllViewerExceptHostHeader` (`b689b0a8-...`) — já no Terraform |
-| 403 direto na Function URL, resource policy correta | desde out/2025 URL pública exige **duas** permissões: `lambda:InvokeFunctionUrl` E `lambda:InvokeFunction` (condição `lambda:InvokedViaFunctionUrl`) | segunda `add-permission` com `--invoked-via-function-url` (⚠️ hoje manual, fora do Terraform — backlog) |
+| 403 direto na Function URL, resource policy correta | desde out/2025 URL pública exige **duas** permissões: `lambda:InvokeFunctionUrl` E `lambda:InvokeFunction` (condição `lambda:InvokedViaFunctionUrl`) | codificado no Terraform desde o épico 002 (`aws_lambda_permission.function_url_invoke`) — se a conta já tem a permissão manual do épico 001, importar antes de aplicar (ver abaixo) |
+
+### Importar a permissão manual do Lambda (épico 002, uma vez por conta existente)
+
+Pré-requisito: provider AWS `>= 6.28.0` (ver `decisions.md`, 2026-07-07) — sem isso o `aws_lambda_permission.function_url_invoke` não aplica (`invoked_via_function_url` não existe em versões anteriores). Rodar primeiro:
+
+```bash
+terraform init -upgrade
+```
+
+Contas provisionadas antes do épico 002 têm a segunda permissão (`AllowPublicFunctionURLInvokeFunction`) criada via CLI, fora do estado. Importar antes do próximo `terraform apply` para não recriar/duplicar:
+
+```bash
+terraform import aws_lambda_permission.function_url_invoke roosterlabs-server/AllowPublicFunctionURLInvokeFunction
+terraform plan   # deve sair limpo, sem diff
+```
+
+Conta nova: `terraform apply` já cria o recurso — nenhum import necessário.
+
+**Nota (2026-07-07):** a primeira tentativa de aplicar este recurso usou `function_url_auth_type = "NONE"` em vez de `invoked_via_function_url = true` — a API da AWS rejeita `function_url_auth_type` para a ação `lambda:InvokeFunction` (`InvalidParameterValueException`). Corrigido; `main.tf` já reflete a versão certa.
 | `Runtime.InvalidEntrypoint` / `fork/exec: permission denied` com binário e permissões corretos | distroless `:nonroot` no Lambda (workdir `/home/nonroot` inacessível ao usuário sandbox) | usar variante root — ver `decisions.md` 2026-07-07 |
 
 ### Cache do CloudFront

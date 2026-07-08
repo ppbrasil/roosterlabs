@@ -1,7 +1,15 @@
 name: Deploy
 
+# Dispara só quando o workflow CI terminar em main — nunca em paralelo com
+# ele. Antes, deploy.yml tinha seu próprio "push: branches: [main]" e
+# rodava build+vet+test próprios (sem lint), então um commit com lint
+# quebrado no CI ia ao ar mesmo assim (aprendizado do épico 001, ver
+# decisions.md/backlog). workflow_run com checagem de conclusion=='success'
+# fecha esse gap sem duplicar build/vet/test/lint aqui.
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
 
 permissions:
@@ -13,20 +21,15 @@ env:
 
 jobs:
   deploy:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
+      # Checkout no SHA exato que o CI validou (github.event.workflow_run.head_sha),
+      # não no HEAD atual de main — evita deployar um commit que o CI nunca rodou.
+      - uses: actions/checkout@v6
         with:
-          go-version-file: go.mod
-
-      - name: Build checks
-        run: |
-          go build ./...
-          go vet ./...
-          go test ./...
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -42,7 +45,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: roosterlabs-server
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
         run: |
           docker build -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" .
           docker push "$REGISTRY/$REPOSITORY:$IMAGE_TAG"

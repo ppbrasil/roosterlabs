@@ -3,6 +3,20 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-07 — Provider AWS bumpado de `~> 5.0` para `>= 6.28.0, < 7.0.0` (épico 002, T3)
+
+- **Decisão:** `infra/terraform/providers.tf` passa a exigir `>= 6.28.0, < 7.0.0` do provider `hashicorp/aws` (era `~> 5.0`).
+- **Rationale:** a permissão dupla do Lambda Function URL (`lambda:InvokeFunction` condicionada a `lambda:InvokedViaFunctionUrl` — ver entrada abaixo sobre o container/Lambda) só é suportada nativamente pelo `aws_lambda_permission` a partir da v6.28.0 do provider (argumento `invoked_via_function_url`, PR hashicorp/terraform-provider-aws#44858, mesclado 2025-12-19). Na `~> 5.0` a única saída seria ou deixar essa permissão fora do Terraform (drift, o problema que o T3 existe pra resolver) ou usar `function_url_auth_type`, que a própria API da AWS rejeita para a ação `InvokeFunction` (só vale para `InvokeFunctionUrl`) — descoberto na tentativa real de apply.
+- **Verificação de segurança do bump:** guia oficial de upgrade v5→v6 checado linha a linha contra os recursos deste repo (`aws_lambda_function`, `aws_lambda_permission`, `aws_lambda_function_url`, `aws_cloudfront_distribution`, `aws_cloudfront_function`, `aws_route53_record`, `aws_iam_role`/`aws_iam_role_policy`/`aws_iam_role_policy_attachment`, `aws_iam_openid_connect_provider`, `aws_ecr_repository`) — nenhum aparece na lista de breaking changes da v6.0.0.
+- **Ação pendente:** `terraform init -upgrade` antes do próximo `apply` (baixa o novo provider).
+- **Reversed if:** algum breaking change não documentado aparecer num recurso futuro que passe a usar `region` (feature nova da v6, "Enhanced Region Support") de forma incompatível com o resto do repo.
+
+## 2026-07-07 — Épico 002 aceito: tipografia via Google Fonts CDN; `www.` redireciona 301 para o apex
+
+- **Decisão:** (1) as fontes da identidade v0.4 (Fraunces, Inter, IBM Plex Mono) carregam via `<link>` do Google Fonts, não vendorizadas no repo. (2) `www.roosterlabs.com.br` responde com 301 para o apex (`roosterlabs.com.br`), em vez de servir conteúdo duplicado.
+- **Rationale:** a proibição de CDN de terceiro no caminho crítico (ver decisão de htmx abaixo) protege a *ação de conversão* (o form); tipografia é decorativa — se o Google Fonts falhar, a página degrada para fallback mas continua funcional. Já registrado como exceção aceitável em decisão anterior ("assets decorativos podem usar CDN se houver razão"). `www.` como 301: o certificado ACM já é wildcard, então o custo é só um alias CloudFront + record Route53; servir os dois duplicaria manutenção sem motivo de negócio.
+- **Reversed if:** Google Fonts apresentar instabilidade real em produção → vendorar (mesmo padrão do htmx). `www.` precisar de conteúdo próprio (improvável) → reavaliar.
+
 ## 2026-07-07 — Épicos backpack-relief + registro de guardrails
 
 - **Decisão:** épicos passam a ter três tipos válidos: outcome, output e **backpack-relief** (alívio de dívida técnica, de design, de UX ou de copy). Criados em `roosterlabs-strategy` (todos os itens competem pela mesma atenção → fila única, priorizada onde as prioridades moram): `guardrails.md` — registro fechado de valores, canais de erosão e padrões comprometidos — e `backlog.md` — backlog unificado de dívidas. Item de dívida só é válido apontando um guardrail: **padrão que viola + canal de erosão que alimenta**. Sem guardrail correspondente: ou se propõe refinar a lista (decisão explícita) ou o item não entra. Escrever no backlog é distribuído; priorizar é centralizado (sessão de strategy com Pedro).

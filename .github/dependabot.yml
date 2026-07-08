@@ -1,0 +1,10 @@
+# Mantém as GitHub Actions atualizadas automaticamente — evita o gap que
+# gerou o item de débito técnico do épico 002 (warnings de deprecação do
+# Node 20 descobertos manualmente). PRs semanais, revisão humana antes do
+# merge (nenhuma automação de merge — decent, not polished).
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

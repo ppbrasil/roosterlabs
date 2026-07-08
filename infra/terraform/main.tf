@@ -71,10 +71,75 @@ resource "aws_lambda_permission" "function_url_public" {
   function_url_auth_type = "NONE"
 }
 
+# Desde out/2025 a AWS exige as DUAS permissões para Function URL pública:
+# InvokeFunctionUrl (acima) E InvokeFunction (abaixo), condicionada a
+# lambda:InvokedViaFunctionUrl. Foi adicionada via CLI na primeira provisão
+# (drift — ver decisions.md e backlog); este recurso a codifica. Em conta
+# nova, `terraform apply` já cria as duas; em conta existente, importar
+# antes de aplicar (ver infra/README.md) para não recriar/duplicar.
+resource "aws_lambda_permission" "function_url_invoke" {
+  statement_id              = "AllowPublicFunctionURLInvokeFunction"
+  action                    = "lambda:InvokeFunction"
+  function_name             = aws_lambda_function.server.function_name
+  principal                 = "*"
+  invoked_via_function_url  = true
+}
+
+# Redirect 301 www -> apex na borda. Não dá para fazer isso no Go: o
+# origin_request_policy abaixo (Managed-AllViewerExceptHostHeader) existe
+# para NUNCA repassar o Host real do visitante ao Lambda (é o que evita o
+# 403 da Function URL — ver infra/README.md), então o servidor jamais veria
+# se a requisição veio de "www." ou do apex. CloudFront Function roda antes
+# dessa policy, na borda, sem invocar o Lambda — mais barato e mais simples
+# que Lambda@Edge para um redirect deste tamanho.
+resource "aws_cloudfront_function" "www_redirect" {
+  name    = "${var.project_name}-www-redirect"
+  runtime = "cloudfront-js-2.0"
+  comment = "301 www.${var.domain_name} -> ${var.domain_name}, path e query preservados"
+  publish = true
+  code    = <<-EOT
+    function handler(event) {
+      var request = event.request;
+      var host = request.headers.host.value;
+      if (host.substring(0, 4) !== 'www.') {
+        return request;
+      }
+      var apex = host.substring(4);
+      var keys = Object.keys(request.querystring);
+      var qs = '';
+      if (keys.length > 0) {
+        var parts = [];
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var entry = request.querystring[key];
+          if (entry.multiValue) {
+            for (var j = 0; j < entry.multiValue.length; j++) {
+              parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(entry.multiValue[j].value));
+            }
+          } else {
+            parts.push(encodeURIComponent(key) + (entry.value !== undefined ? '=' + encodeURIComponent(entry.value) : ''));
+          }
+        }
+        qs = '?' + parts.join('&');
+      }
+      return {
+        statusCode: 301,
+        statusDescription: 'Moved Permanently',
+        headers: {
+          location: { value: 'https://' + apex + request.uri + qs }
+        }
+      };
+    }
+  EOT
+}
+
 resource "aws_cloudfront_distribution" "landing" {
   enabled             = true
   default_root_object = ""
-  aliases             = [var.domain_name]
+  # www. entra na mesma distribuição (cert ACM já é wildcard); o servidor
+  # Go responde com 301 para o apex baseado no Host (ver internal/server) —
+  # mais simples que uma segunda distribuição só para redirect.
+  aliases = [var.domain_name, "www.${var.domain_name}"]
 
   origin {
     domain_name = trimsuffix(replace(aws_lambda_function_url.server.function_url, "https://", ""), "/")
@@ -99,6 +164,11 @@ resource "aws_cloudfront_distribution" "landing" {
     # forward the viewer's Host (Managed-AllViewer does, and breaks with 403).
     origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
     viewer_protocol_policy   = "redirect-to-https"
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.www_redirect.arn
+    }
   }
 
   restrictions {
@@ -119,6 +189,18 @@ resource "aws_cloudfront_distribution" "landing" {
 resource "aws_route53_record" "apex" {
   zone_id = var.hosted_zone_id
   name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.landing.domain_name
+    zone_id                = aws_cloudfront_distribution.landing.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "www" {
+  zone_id = var.hosted_zone_id
+  name    = "www.${var.domain_name}"
   type    = "A"
 
   alias {
