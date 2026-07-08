@@ -3,19 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RoosterLabs | Auto-Autenticidade</title>
-  <meta name="description" content="A RoosterLabs cuida do caminho inteiro do seu conteudo no LinkedIn, sempre do seu ponto de vista real.">
+  <title>RoosterLabs · Você. AImplificado.</title>
+  <meta name="description" content="A RoosterLabs cuida do caminho inteiro do seu conteúdo no LinkedIn — do assunto certo à publicação — sempre a partir do seu ponto de vista real.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:title" content="RoosterLabs | Auto-Autenticidade">
-  <meta property="og:description" content="Ser autentico nao significa fazer todo o trabalho.">
+  <meta property="og:title" content="RoosterLabs · Você. AImplificado.">
+  <meta property="og:description" content="Saber nunca foi o seu problema. Transformar isso em conteúdo, sim.">
   <meta property="og:url" content="{{.BaseURL}}{{.PagePath}}">
   <meta property="og:image" content="{{.OGImageURL}}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="RoosterLabs | Auto-Autenticidade">
-  <meta name="twitter:description" content="Ser autentico nao significa fazer todo o trabalho.">
+  <meta name="twitter:title" content="RoosterLabs · Você. AImplificado.">
+  <meta name="twitter:description" content="Saber nunca foi o seu problema. Transformar isso em conteúdo, sim.">
   <meta name="twitter:image" content="{{.OGImageURL}}">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <!-- Fontes via Google Fonts CDN (épico 002, T14): decorativo, fora do
+       caminho crítico de conversão — se falhar, cai no fallback do CSS e o
+       form continua funcionando. Diferente do htmx (vendorado, ver
+       decisions.md), que é caminho crítico. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/site.css">
   <!-- htmx vendorado em /static: unpkg travou em produção (2026-07-07);
        CDN de terceiro no caminho crítico do form é risco desnecessário. -->
@@ -24,31 +34,62 @@
 </head>
 <body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
   <header class="site-header">
-    <p class="eyebrow">AUTO-AUTENTICIDADE™</p>
+    <p class="eyebrow">Você. AImplificado.</p>
     <a href="/en/" class="lang-link">English version</a>
-    <h1>Ser autentico nao significa fazer todo o trabalho.</h1>
-    <p class="lead">A RoosterLabs cuida do caminho inteiro do seu conteudo no LinkedIn. A IA faz o trabalho pesado; a autoridade construida e sua.</p>
+    <h1>Amplificar você não é escrever por você. É refletir você.</h1>
+    <p class="lead">A RoosterLabs cuida do caminho inteiro do seu conteúdo no LinkedIn — do assunto certo à publicação — sempre a partir do seu ponto de vista real. A IA faz o trabalho pesado; a autoridade construída é sua.</p>
   </header>
 
   <main>
     <section class="section">
-      <h2>Saber nunca foi o seu problema. Publicar, sim.</h2>
-      <p>Publicar com consistencia exige um processo inteiro: gatilho, take, estrutura e repeticao semanal. Sem esse sistema, a consistencia morre.</p>
+      <h2>Saber nunca foi o seu problema. Transformar isso em conteúdo, sim.</h2>
+      <p>Publicar com consistência exige um processo que ninguém te contou: perceber o que no seu dia (e no noticiário) merece o seu comentário, descobrir qual é o <em>seu</em> take, transformar isso num post que pareça você — e repetir isso toda semana, com disciplina, por meses.</p>
+      <p>Você tem as opiniões e a experiência. O que não tem é esse sistema. Por isso quase todo mundo:</p>
+      <ul>
+        <li><strong>Posta por conta própria... por três semanas.</strong> Sem processo, a consistência morre no primeiro mês cheio.</li>
+        <li><strong>Testa uma ferramenta de IA genérica.</strong> Ela escreve — mas escreve o post de todo mundo, não o seu.</li>
+        <li><strong>Cogita um ghostwriter.</strong> Resolve o processo, a US$ 500–2.000+/mês, com a voz de outra pessoa.</li>
+      </ul>
     </section>
 
     <section class="section">
-      <h2>Do gatilho a publicacao, com voce no centro.</h2>
+      <h2>Do gatilho à publicação, com você no centro.</h2>
       <ol>
-        <li>Ficamos de olho nos gatilhos do seu campo.</li>
-        <li>Capturamos seu take em conversa rapida.</li>
-        <li>Montamos o post com a sua visao.</li>
-        <li>Voce aprova e publica toda semana.</li>
+        <li><strong>Encontramos o tema.</strong> Do noticiário do seu campo ou da sua própria linha editorial — um banco de ideias que nunca zera. Acabou o "sobre o que eu posto?".</li>
+        <li><strong>Ouvimos você.</strong> Uma conversa rápida captura o seu take de verdade — a opinião, a experiência, a lição. Como um bom entrevistador, na hora que funcionar para você.</li>
+        <li><strong>Montamos o post com a sua visão e o seu tom de voz.</strong> A IA faz o trabalho pesado de estruturar e escrever — a partir do que você disse, não de templates.</li>
+        <li><strong>Você aprova e publica. Toda semana.</strong> A consistência deixa de depender da sua disciplina — esse passa a ser o nosso trabalho. Galo não esquece de cantar.</li>
       </ol>
-      <p class="note">Nota de transparencia: 100% software, do gatilho ao rascunho. Nenhum humano escreve por voce.</p>
+      <p class="note">Nota de transparência: 100% software, do gatilho ao rascunho. Nenhum humano escreve por você — e a palavra final é sempre sua.</p>
+    </section>
+
+    <section class="section">
+      <div class="compare-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Ferramentas de IA</th>
+              <th scope="col">RoosterLabs</th>
+              <th scope="col">Ghostwriters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Escreve o post</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr><td>A partir do seu take real, não de template</td><td>✗</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Gatilhos + linha editorial próprios</td><td>✗</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Consistência como parte do serviço</td><td>✗</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Na sua voz — nem genérica, nem emprestada</td><td>✗</td><td>✓</td><td>✗</td></tr>
+            <tr><td>Preço de software</td><td>✓</td><td>✓</td><td>✗</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Autenticidade e esforço sempre andaram juntos: ou você toca o processo todo, ou paga alguém para fingir ser você. A RoosterLabs separa as duas coisas.</p>
     </section>
 
     <section class="section form-section">
-      <h2>Vagas alfa abertas, poucas de proposito.</h2>
+      <h2>Vagas alfa abertas — poucas, de propósito.</h2>
+      <p>Estamos começando com um grupo pequeno de alfa users: profissionais seniores construindo autoridade agora, dispostos a moldar o produto com a gente. Depois vêm as vagas beta; só então abrimos de verdade.</p>
       {{template "form_step_1_pt" .}}
     </section>
   </main>

@@ -1,24 +1,15 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/mail"
-	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/roosterlabs/roosterlabs-engineering/internal/leads"
 )
-
-type formTemplateData struct {
-	Lang         string
-	PagePath     string
-	UTM          leads.UTM
-	ContactEmail string
-	Error        string
-	Values       map[string]string
-}
 
 func (a *app) handleFormStep(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
@@ -57,7 +48,7 @@ func (a *app) handleFormStep(w http.ResponseWriter, r *http.Request) {
 	if step < 5 {
 		errMsg := validateStep(step, values)
 		if errMsg != "" {
-			a.renderFormStep(w, step, formTemplateData{
+			a.renderFormStep(w, step, pageData{
 				Lang:         lang,
 				PagePath:     pagePath,
 				UTM:          utm,
@@ -85,7 +76,7 @@ func (a *app) handleFormStep(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		a.renderFormStep(w, step+1, formTemplateData{
+		a.renderFormStep(w, step+1, pageData{
 			Lang:         lang,
 			PagePath:     pagePath,
 			UTM:          utm,
@@ -97,7 +88,7 @@ func (a *app) handleFormStep(w http.ResponseWriter, r *http.Request) {
 
 	errMsg := validateFinal(values)
 	if errMsg != "" {
-		a.renderFormStep(w, 5, formTemplateData{
+		a.renderFormStep(w, 5, pageData{
 			Lang:         lang,
 			PagePath:     pagePath,
 			UTM:          utm,
@@ -105,6 +96,16 @@ func (a *app) handleFormStep(w http.ResponseWriter, r *http.Request) {
 			Error:        errMsg,
 			Values:       values,
 		})
+		return
+	}
+
+	// validateFinal já confirmou que normalizeLinkedInURL não erra para este
+	// valor — o erro aqui só seria alcançável por uma corrida de dados
+	// improvável entre validação e uso; nesse caso extremo, falha explícito
+	// em vez de gravar lead com LinkedIn vazio.
+	linkedinURL, err := normalizeLinkedInURL(values["linkedin_handle"])
+	if err != nil {
+		http.Error(w, "invalid linkedin handle", http.StatusInternalServerError)
 		return
 	}
 
@@ -116,31 +117,40 @@ func (a *app) handleFormStep(w http.ResponseWriter, r *http.Request) {
 		PagePath: pagePath,
 		UTM:      utm,
 		Email:    strings.TrimSpace(values["email"]),
-		LinkedIn: strings.TrimSpace(values["linkedin"]),
+		LinkedIn: linkedinURL,
 	}); err != nil {
 		http.Error(w, "failed to persist lead", http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := a.tmpl.ExecuteTemplate(w, formTemplateName(lang, 6), formTemplateData{
+	var buf bytes.Buffer
+	if err := a.tmpl.ExecuteTemplate(&buf, formTemplateName(lang, 6), pageData{
 		Lang:         lang,
 		PagePath:     pagePath,
 		UTM:          utm,
 		ContactEmail: a.contactEmail,
 	}); err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
 	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = w.Write(buf.Bytes())
 }
 
-func (a *app) renderFormStep(w http.ResponseWriter, step int, data formTemplateData) {
+func (a *app) renderFormStep(w http.ResponseWriter, step int, data pageData) {
 	if data.Values == nil {
 		data.Values = map[string]string{}
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := a.tmpl.ExecuteTemplate(w, formTemplateName(data.Lang, step), data); err != nil {
+
+	var buf bytes.Buffer
+	if err := a.tmpl.ExecuteTemplate(&buf, formTemplateName(data.Lang, step), data); err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
 	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = w.Write(buf.Bytes())
 }
 
 func formTemplateName(lang string, step int) string {
@@ -169,16 +179,36 @@ func validateStep(step int, values map[string]string) string {
 
 func validateFinal(values map[string]string) string {
 	email := strings.TrimSpace(values["email"])
-	linkedin := strings.TrimSpace(values["linkedin"])
 	if _, err := mail.ParseAddress(email); err != nil {
 		return "Informe um e-mail valido."
 	}
-	u, err := url.Parse(linkedin)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return "Informe uma URL valida do LinkedIn."
-	}
-	if !strings.Contains(strings.ToLower(u.Host), "linkedin.com") {
-		return "A URL precisa ser do dominio linkedin.com."
+	if _, err := normalizeLinkedInURL(values["linkedin_handle"]); err != nil {
+		return "Informe seu usuario do LinkedIn."
 	}
 	return ""
+}
+
+// normalizeLinkedInURL constrói a URL canônica do LinkedIn a partir do
+// handle (formato do form v0.4: campo com prefixo fixo linkedin.com/in/,
+// épico 002, T13). Aceita defensivamente que o usuário tenha colado a URL
+// inteira no campo — nesse caso extrai só o handle antes de remontar,
+// para não duplicar o prefixo (ex.: "https://www.linkedin.com/in/foo" e
+// "linkedin.com/in/foo/" viram ambos ".../in/foo").
+func normalizeLinkedInURL(raw string) (string, error) {
+	handle := strings.TrimSpace(raw)
+	handle = strings.TrimPrefix(handle, "https://")
+	handle = strings.TrimPrefix(handle, "http://")
+	handle = strings.TrimPrefix(handle, "www.")
+	handle = strings.TrimPrefix(handle, "linkedin.com/in/")
+	handle = strings.TrimPrefix(handle, "linkedin.com/")
+	if i := strings.IndexAny(handle, "/?"); i >= 0 {
+		handle = handle[:i]
+	}
+	handle = strings.TrimSpace(handle)
+
+	if handle == "" {
+		return "", fmt.Errorf("linkedin handle vazio")
+	}
+
+	return "https://www.linkedin.com/in/" + handle, nil
 }

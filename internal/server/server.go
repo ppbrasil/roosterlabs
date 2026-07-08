@@ -3,6 +3,7 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -28,9 +29,12 @@ type app struct {
 	contactEmail string
 }
 
-// pageData é um superconjunto dos campos que os templates de form usam
-// (Error, Values), porque a landing embute o passo 1 do form via
-// {{template "form_step_1_*" .}} e recebe este struct, não formTemplateData.
+// pageData é o único tipo de dados passado a qualquer template desta
+// aplicação — landing e todos os passos do form (épico 002, T8: antes
+// existiam dois tipos quase idênticos, pageData e formTemplateData, só por
+// causa da landing embutir o passo 1 do form via {{template "form_step_1_*" .}}).
+// BaseURL e OGImageURL só são usados pelos templates de landing; os passos
+// do form ignoram esses dois campos.
 type pageData struct {
 	Lang         string
 	PagePath     string
@@ -108,26 +112,33 @@ func (a *app) handleLandingEN(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) renderLanding(w http.ResponseWriter, r *http.Request, lang, templateName, pagePath string) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	// ensureToken tem que rodar antes de qualquer Write em w: o cookie de
+	// sessão (Set-Cookie) só é aceito pelo cliente se sair ANTES do corpo
+	// (ver "Achado" abaixo). Também é por isso que renderizamos em buffer:
+	// se o template falhar no meio, w nunca recebe bytes parciais — ou sai
+	// a página inteira, ou sai um 500 limpo.
+	_ = a.ensureToken(w, r)
 
 	utm := utmFromURL(r.URL)
 	data := pageData{
 		Lang:         leads.NormalizeLanguage(lang),
 		PagePath:     pagePath,
 		BaseURL:      a.baseURL,
-		OGImageURL:   a.baseURL + "/static/og-image.svg",
+		OGImageURL:   a.baseURL + "/static/" + ogImageFile(lang),
 		ContactEmail: a.contactEmail,
 		UTM:          utm,
 		Values:       map[string]string{},
 	}
 
-	if err := a.tmpl.ExecuteTemplate(w, templateName, data); err != nil {
+	var buf bytes.Buffer
+	if err := a.tmpl.ExecuteTemplate(&buf, templateName, data); err != nil {
 		slog.Error("rendering landing", "template", templateName, "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	_ = a.ensureToken(w, r)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = w.Write(buf.Bytes())
 }
 
 func (a *app) ensureToken(w http.ResponseWriter, r *http.Request) string {
@@ -159,6 +170,17 @@ func (a *app) ensureToken(w http.ResponseWriter, r *http.Request) string {
 
 func withTimeoutCtx(r *http.Request) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(r.Context(), 3*time.Second)
+}
+
+// ogImageFile devolve o PNG de OG certo por idioma (épico 002, T15 — fecha
+// G1 do épico 001: og:image era SVG e não renderizava preview no
+// LinkedIn/WhatsApp). Assets gerados por marketing em
+// roosterlabs-marketing/brand/web/, copiados para web/static/.
+func ogImageFile(lang string) string {
+	if leads.NormalizeLanguage(lang) == "en" {
+		return "og-en.png"
+	}
+	return "og.png"
 }
 
 func utmFromURL(u *url.URL) leads.UTM {

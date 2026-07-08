@@ -1,6 +1,6 @@
 {{define "form_step_1_pt"}}
 <div id="lead-form" class="form-card">
-  <h3>1. O que descreve melhor voce?</h3>
+  <h3>1. O que descreve melhor você?</h3>
   {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
   <form hx-post="/form/1" hx-target="#lead-form" hx-swap="outerHTML">
     <input type="hidden" name="lang" value="{{.Lang}}">
@@ -10,10 +10,10 @@
     <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
     <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
     <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
-    <label><input type="radio" name="choice" value="Consultor, advisor ou fractional"> Consultor, advisor ou fractional</label>
-    <label><input type="radio" name="choice" value="Fundador de negocio de servicos"> Fundador de negocio de servicos</label>
-    <label><input type="radio" name="choice" value="Executivo ou lider em empresa"> Executivo ou lider em empresa</label>
-    <label><input type="radio" name="choice" value="Especialista senior"> Especialista senior</label>
+    <label><input type="radio" name="choice" value="Consultor ou advisor independente"> Consultor ou advisor independente</label>
+    <label><input type="radio" name="choice" value="Fundador de negócio de serviços"> Fundador de negócio de serviços</label>
+    <label><input type="radio" name="choice" value="Executivo ou líder em empresa"> Executivo ou líder em empresa</label>
+    <label><input type="radio" name="choice" value="Especialista sênior"> Especialista sênior</label>
     <label><input type="radio" name="choice" value="Outro"> Outro</label>
     <input type="text" name="other" placeholder="Se marcou Outro, detalhe aqui">
     <button type="submit">Continuar</button>
@@ -33,8 +33,9 @@
     <input type="hidden" name="utm_campaign" value="{{.UTM.Campaign}}">
     <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
     <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
-    <label><input type="radio" name="choice" value="Gerar negocios"> Gerar negocios</label>
+    <label><input type="radio" name="choice" value="Gerar negócios"> Gerar negócios</label>
     <label><input type="radio" name="choice" value="Crescer na carreira"> Crescer na carreira</label>
+    <label><input type="radio" name="choice" value="Construir audiência"> Construir audiência</label>
     <label><input type="radio" name="choice" value="Outro"> Outro</label>
     <input type="text" name="other" placeholder="Se marcou Outro, detalhe aqui">
     <button type="submit">Continuar</button>
@@ -44,7 +45,7 @@
 
 {{define "form_step_3_pt"}}
 <div id="lead-form" class="form-card">
-  <h3>3. Hoje, seu LinkedIn esta...</h3>
+  <h3>3. Hoje, seu LinkedIn está...</h3>
   {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
   <form hx-post="/form/3" hx-target="#lead-form" hx-swap="outerHTML">
     <input type="hidden" name="lang" value="{{.Lang}}">
@@ -55,8 +56,9 @@
     <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
     <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
     <label><input type="radio" name="choice" value="Parado"> Parado</label>
+    <label><input type="radio" name="choice" value="Só comento e reajo a posts dos outros"> Só comento e reajo a posts dos outros</label>
     <label><input type="radio" name="choice" value="Posts de vez em quando"> Posts de vez em quando</label>
-    <label><input type="radio" name="choice" value="Publico com consistencia"> Publico com consistencia</label>
+    <label><input type="radio" name="choice" value="Publico com consistência"> Publico com consistência</label>
     <button type="submit">Continuar</button>
   </form>
 </div>
@@ -77,7 +79,7 @@
     <label><input type="radio" name="choice" value="Saber sobre o que postar"> Saber sobre o que postar</label>
     <label><input type="radio" name="choice" value="Definir meu take"> Definir meu take</label>
     <label><input type="radio" name="choice" value="Escrever/montar o post"> Escrever/montar o post</label>
-    <label><input type="radio" name="choice" value="Manter consistencia"> Manter consistencia</label>
+    <label><input type="radio" name="choice" value="Manter consistência"> Manter consistência</label>
     <label><input type="radio" name="choice" value="Tempo"> Tempo</label>
     <button type="submit">Continuar</button>
   </form>
@@ -86,7 +88,7 @@
 
 {{define "form_step_5_pt"}}
 <div id="lead-form" class="form-card">
-  <h3>5. Quase la</h3>
+  <h3>5. Quase lá</h3>
   {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
   <form hx-post="/form/5" hx-target="#lead-form" hx-swap="outerHTML">
     <input type="hidden" name="lang" value="{{.Lang}}">
@@ -99,8 +101,11 @@
     <label>E-mail
       <input type="email" name="email" required>
     </label>
-    <label>URL do LinkedIn
-      <input type="url" name="linkedin" required placeholder="https://www.linkedin.com/in/seu-perfil">
+    <label>LinkedIn
+      <span class="input-prefix-group">
+        <span class="input-prefix">linkedin.com/in/</span>
+        <input type="text" name="linkedin_handle" required placeholder="seu-usuario" autocomplete="off">
+      </span>
     </label>
     <button type="submit">Quero uma vaga no alfa</button>
   </form>
@@ -110,7 +115,7 @@
 {{define "form_step_6_pt"}}
 <div id="lead-form" class="form-card form-success">
   <h3>Recebido.</h3>
-  <p>Voce esta na fila das vagas alfa e entraremos em contato em breve por {{.ContactEmail}}.</p>
+  <p>Você está na fila das vagas alfa — entraremos em contato em breve.</p>
 </div>
 {{end}}
 
@@ -151,6 +156,7 @@
     <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
     <label><input type="radio" name="choice" value="Generate business"> Generate business</label>
     <label><input type="radio" name="choice" value="Grow my career"> Grow my career</label>
+    <label><input type="radio" name="choice" value="Build an audience"> Build an audience</label>
     <label><input type="radio" name="choice" value="Other"> Other</label>
     <input type="text" name="other" placeholder="If Other, add more detail">
     <button type="submit">Continue</button>
@@ -171,6 +177,7 @@
     <input type="hidden" name="utm_term" value="{{.UTM.Term}}">
     <input type="hidden" name="utm_content" value="{{.UTM.Content}}">
     <label><input type="radio" name="choice" value="Dormant"> Dormant</label>
+    <label><input type="radio" name="choice" value="I only react and comment on others' posts"> I only react and comment on others' posts</label>
     <label><input type="radio" name="choice" value="Occasional posts"> Occasional posts</label>
     <label><input type="radio" name="choice" value="Consistently active"> Consistently active</label>
     <button type="submit">Continue</button>
@@ -215,8 +222,11 @@
     <label>Email
       <input type="email" name="email" required>
     </label>
-    <label>LinkedIn URL
-      <input type="url" name="linkedin" required placeholder="https://www.linkedin.com/in/your-profile">
+    <label>LinkedIn
+      <span class="input-prefix-group">
+        <span class="input-prefix">linkedin.com/in/</span>
+        <input type="text" name="linkedin_handle" required placeholder="your-handle" autocomplete="off">
+      </span>
     </label>
     <button type="submit">Get an alpha seat</button>
   </form>
@@ -226,6 +236,6 @@
 {{define "form_step_6_en"}}
 <div id="lead-form" class="form-card form-success">
   <h3>Got it.</h3>
-  <p>You are in line for an alpha seat and we will reach out soon at {{.ContactEmail}}.</p>
+  <p>You're in line for an alpha seat — we'll reach out soon.</p>
 </div>
 {{end}}

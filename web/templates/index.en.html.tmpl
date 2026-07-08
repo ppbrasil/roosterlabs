@@ -3,19 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RoosterLabs | Auto-Authenticity</title>
-  <meta name="description" content="RoosterLabs runs the whole path of your LinkedIn content from your real point of view.">
+  <title>RoosterLabs · You. AImplified.</title>
+  <meta name="description" content="RoosterLabs runs the whole path of your LinkedIn content — from the right topic to publishing — always from your real point of view.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
-  <meta property="og:title" content="RoosterLabs | Auto-Authenticity">
-  <meta property="og:description" content="Being authentic does not mean doing all the work.">
+  <meta property="og:title" content="RoosterLabs · You. AImplified.">
+  <meta property="og:description" content="Knowing was never your problem. Turning it into content is.">
   <meta property="og:url" content="{{.BaseURL}}{{.PagePath}}">
   <meta property="og:image" content="{{.OGImageURL}}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="RoosterLabs | Auto-Authenticity">
-  <meta name="twitter:description" content="Being authentic does not mean doing all the work.">
+  <meta name="twitter:title" content="RoosterLabs · You. AImplified.">
+  <meta name="twitter:description" content="Knowing was never your problem. Turning it into content is.">
   <meta name="twitter:image" content="{{.OGImageURL}}">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <!-- Fonts via Google Fonts CDN (épico 002, T14): decorative, off the
+       critical path — if it fails, the CSS fallback kicks in and the form
+       keeps working. Different from htmx (vendored, see decisions.md),
+       which is critical path. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/site.css">
   <!-- htmx vendored in /static: unpkg hung in production (2026-07-07). -->
   <script defer src="/static/htmx.min.js"></script>
@@ -23,37 +33,68 @@
 </head>
 <body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
   <header class="site-header">
-    <p class="eyebrow">AUTO-AUTHENTICITY™</p>
-    <a href="/" class="lang-link">Versao em portugues</a>
-    <h1>Being authentic does not mean doing all the work.</h1>
-    <p class="lead">RoosterLabs runs the whole path of your LinkedIn content from the right topic to publishing. AI does the heavy lifting; the authority is yours.</p>
+    <p class="eyebrow">You. AImplified.</p>
+    <a href="/" class="lang-link">Versão em português</a>
+    <h1>Amplifying you isn't writing for you. It's writing from you.</h1>
+    <p class="lead">RoosterLabs runs the whole path of your LinkedIn content — from the right topic to publishing — always from your real point of view. The AI does the heavy lifting; the authority you build is yours.</p>
   </header>
 
   <main>
     <section class="section">
-      <h2>Knowing was never your problem. Publishing is.</h2>
-      <p>Publishing consistently takes a system: trigger, take, structure, and weekly repetition. Without a system, consistency dies.</p>
+      <h2>Knowing was never your problem. Turning it into content is.</h2>
+      <p>Publishing consistently takes a system nobody told you about: spotting what in your day (and in the news) deserves your comment, finding <em>your</em> take on it, turning that into a post that sounds like you — and repeating it every week, with discipline, for months.</p>
+      <p>You have the opinions and the experience. What you don't have is that system. Which is why almost everyone:</p>
+      <ul>
+        <li><strong>Posts on their own... for three weeks.</strong> Without a system, consistency dies in the first busy month.</li>
+        <li><strong>Tries a generic AI tool.</strong> It writes — everyone's post, not yours.</li>
+        <li><strong>Considers a ghostwriter.</strong> Solves the process at US$500–2,000+/mo, in someone else's voice.</li>
+      </ul>
     </section>
 
     <section class="section">
       <h2>From trigger to published, with you at the center.</h2>
       <ol>
-        <li>We watch your field for worthy triggers.</li>
-        <li>We capture your take in a short conversation.</li>
-        <li>We build the post around your perspective.</li>
-        <li>You approve and publish every week.</li>
+        <li><strong>We find the topic.</strong> From your field's news or your own editorial line — an idea bank that never runs dry. No more "what do I even post about?".</li>
+        <li><strong>We listen to you.</strong> A quick conversation captures your actual take — the opinion, the experience, the lesson. Like a good interviewer, whenever it suits you.</li>
+        <li><strong>We build the post around your view, in your voice.</strong> The AI does the heavy lifting of structuring and writing — from what you said, not from templates.</li>
+        <li><strong>You approve and publish. Every week.</strong> Consistency stops depending on your discipline — that becomes our job. A rooster never forgets to crow.</li>
       </ol>
-      <p class="note">Transparency note: 100% software from trigger to draft. No human writes for you.</p>
+      <p class="note">Transparency note: 100% software, from trigger to draft. No human ever writes for you — and the final word is always yours.</p>
+    </section>
+
+    <section class="section">
+      <div class="compare-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">AI writing tools</th>
+              <th scope="col">RoosterLabs</th>
+              <th scope="col">Ghostwriters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Writes the post</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr><td>From your real take, not a template</td><td>✗</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Triggers + an editorial line of your own</td><td>✗</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Consistency as part of the service</td><td>✗</td><td>✓</td><td>✓</td></tr>
+            <tr><td>In your voice — not generic, not borrowed</td><td>✗</td><td>✓</td><td>✗</td></tr>
+            <tr><td>Software price</td><td>✓</td><td>✓</td><td>✗</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Authenticity and effort have always been coupled: either you run the whole process, or you pay someone to fake being you. RoosterLabs decouples them.</p>
     </section>
 
     <section class="section form-section">
-      <h2>Alpha seats are open, few on purpose.</h2>
+      <h2>Alpha seats open — few, on purpose.</h2>
+      <p>We're starting with a small group of alpha users: senior professionals building authority now, willing to shape the product with us. Beta seats come next; only then do we open up for real.</p>
       {{template "form_step_1_en" .}}
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>RoosterLabs · contact: <a href="mailto:{{.ContactEmail}}">{{.ContactEmail}}</a> · <a href="/">Versao em portugues</a></p>
+    <p>RoosterLabs · contact: <a href="mailto:{{.ContactEmail}}">{{.ContactEmail}}</a> · <a href="/">Versão em português</a></p>
   </footer>
 </body>
 </html>
