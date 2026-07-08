@@ -276,6 +276,18 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
           "lambda:GetFunctionConfiguration"
         ]
         Resource = aws_lambda_function.server.arn
+      },
+      {
+        # Sem isso, todo deploy atualiza o Lambda mas o visitante continua
+        # vendo a versao anterior por ate 24h (TTL default da cache_policy
+        # CachingOptimized, ja que o Go nao manda Cache-Control) — gap achado
+        # na verificacao de producao do epico 002 (T19). create-invalidation
+        # com "/*" no deploy.yml fecha isso sem passo manual.
+        Effect = "Allow"
+        Action = [
+          "cloudfront:CreateInvalidation"
+        ]
+        Resource = aws_cloudfront_distribution.landing.arn
       }
     ]
   })

@@ -3,6 +3,13 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-08 — `deploy.yml` invalida a cache do CloudFront (`/*`) a cada deploy (épico 002, T19)
+
+- **Decisão:** novo passo `aws cloudfront create-invalidation --paths "/*"` no fim de `deploy.yml`, com permissão IAM `cloudfront:CreateInvalidation` (escopada ao ARN da distribuição) adicionada à role `github-actions-deploy`. Novo output `cloudfront_distribution_id` em `outputs.tf`, registrado como secret `CLOUDFRONT_DISTRIBUTION_ID`.
+- **Rationale:** achado ao tentar verificar em produção o fechamento do épico 001 (G1/G2) — merge em `main` já deployava a imagem nova no Lambda, mas `https://roosterlabs.com.br/` continuava servindo a v0.3 antiga. Causa: `default_cache_behavior` usa a policy gerenciada `CachingOptimized` (TTL default 24h), e o Go nunca manda `Cache-Control`, então o CloudFront cacheia a página inteira na borda por até um dia após cada deploy. Isso quebrava silenciosamente a promessa original do DoD do épico 001 ("merge em `main` → produção sem passo manual") — o deploy era automático, mas não *visível* sem uma invalidação manual (documentada como runbook, nunca automatizada).
+- **Alternativa rejeitada:** baixar o TTL default da cache policy em vez de invalidar. Mais simples (sem permissão IAM nova), mas reduz o hit ratio da borda de propósito e ainda não é instantâneo — Pedro preferiu invalidação automática no pipeline.
+- **Reversed if:** o volume de deploys crescer a ponto de `/*` custar (primeiras 1.000 invalidações de path/mês são grátis; hoje irrelevante) — nesse caso, invalidar só os paths que mudaram em vez de `/*`.
+
 ## 2026-07-08 — Dependabot ignora `golangci-lint-action >= 7` até migração deliberada para golangci-lint v2
 
 - **Decisão:** `.github/dependabot.yml` ganha uma regra `ignore` para `golangci/golangci-lint-action` versões `>= 7`.

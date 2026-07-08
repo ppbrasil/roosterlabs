@@ -43,7 +43,8 @@ Arquivos principais:
 4. Rodar `terraform plan -var='hosted_zone_id=...' -var='database_url=...' -var='acm_certificate_arn=...' -var='github_owner=...' -var='github_repo=...'`.
 5. Rodar `terraform apply` com os mesmos `-var`.
 6. Registrar output `github_actions_role_arn` como secret `AWS_DEPLOY_ROLE_ARN` no GitHub.
-7. Criar secret `AWS_REGION` se quiser sobrescrever `us-east-1`.
+7. Registrar output `cloudfront_distribution_id` como secret `CLOUDFRONT_DISTRIBUTION_ID` no GitHub (deploy.yml invalida a cache a cada deploy — épico 002, T19).
+8. Criar secret `AWS_REGION` se quiser sobrescrever `us-east-1`.
 
 ## Deploy automático
 
@@ -55,7 +56,9 @@ Fluxo em `main`:
 2. assume role via OIDC;
 3. builda/pusha imagem no ECR;
 4. atualiza imagem da Lambda;
-5. aguarda função atualizada e imprime resumo.
+5. aguarda função atualizada;
+6. invalida a cache do CloudFront (`/*`) — sem isso o visitante veria a versão anterior por até 24h (épico 002, T19; ver "Cache do CloudFront" abaixo);
+7. imprime resumo.
 
 ## `www.` redireciona para o apex (épico 002)
 
@@ -128,13 +131,17 @@ Conta nova: `terraform apply` já cria o recurso — nenhum import necessário.
 
 ### Cache do CloudFront
 
-Mudou HTML/asset e precisa ver agora:
+**Automático desde o épico 002 (T19):** todo deploy invalida `/*` como último passo (`deploy.yml`) — descoberto porque a `cache_policy_id` (`CachingOptimized`) usa TTL default de 24h na ausência de `Cache-Control` do Go, então merges em `main` ficavam invisíveis em produção por até um dia sem esse passo.
+
+Precisa forçar manualmente (fora do fluxo de deploy normal, ex.: mudou um asset estático sem tocar código)?
 
 ```bash
 aws cloudfront create-invalidation --distribution-id <ID> --paths "/*"
 ```
 
-`terraform output` não expõe o ID; pegar no console ou `aws cloudfront list-distributions`. Atenção: o cache key ignora query string — HTML cacheado carrega os UTMs do primeiro visitante (gap G2 do épico 001).
+`terraform output cloudfront_distribution_id` dá o ID (também é o secret `CLOUDFRONT_DISTRIBUTION_ID` do GitHub).
+
+Atenção: o cache key ignora query string — HTML cacheado pode carregar os UTMs do primeiro visitante entre invalidações (gap G2 do épico 001, mitigado no client-side por `app.js`, não pela invalidação).
 
 ## VPC própria (futuro)
 

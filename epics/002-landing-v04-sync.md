@@ -156,7 +156,8 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 - **T14 — feito.** Fontes carregadas via Google Fonts CDN (`Fraunces`/`Inter`/`IBM Plex Mono`, `preconnect` + `<link rel="stylesheet">`) nas duas páginas; `site.css` com `font-family: "Inter", Arial, sans-serif` no body (era serif genérico, não batia com o CSS que já referenciava as três famílias). Exceção de CDN de terceiro documentada inline no template (decorativo, fora do caminho crítico — diferente do htmx, vendorado). Teste `TestFontsLoadedFromGoogleFonts` novo.
 - **T15 — feito.** `og.png`/`og-en.png` (gerados por marketing em `roosterlabs-marketing/brand/web/`) copiados para `web/static/`, substituindo o SVG que não gerava preview no LinkedIn/WhatsApp (fecha G1 do épico 001). Novo helper `ogImageFile(lang)` em `server.go` escolhe o PNG certo por idioma; `og:image:width`/`height`/`type` adicionados nas duas páginas. `og-image.svg` antigo não pôde ser removido (permissão do filesystem montado) — fica como arquivo morto inofensivo, remoção manual opcional. Teste novo `TestOGImagePerLanguage` cobre metatags corretas por idioma e `Content-Type: image/png` do arquivo servido.
 - **T16 — feito.** `app.js` agora lê `location.search` diretamente (via `URLSearchParams`) em vez de confiar no dataset do `<body>` — que é HTML servido pelo CloudFront e pode ter sido cacheado pra outro visitante (a política de cache ignora query string). Sobrescreve incondicionalmente (mesmo para `""`) os 5 hidden inputs do form no passo 1 e usa os mesmos valores no payload do beacon. Passos 2+ herdam o valor corrigido porque `utmFromForm` (form_handler.go) só ecoa o que foi submetido no passo anterior — não precisou tocar o form_handler nem os templates. Sem teste automatizado: como já previsto no plano da tarefa, T16 é smoke manual + revisão de código (não há infra de teste JS no repo; criar uma só para isso seria over-engineering fora do orçamento).
-- Restam T17–T18.
+- **T19 — feito (código), achado durante o T17.** Ao tentar fechar o épico 001 por evidência, `roosterlabs.com.br` ainda servia v0.3 mesmo com o Lambda já atualizado — `CachingOptimized` cacheia a página por até 24h sem `Cache-Control` do Go. Adicionado passo de `create-invalidation --paths "/*"` no fim do `deploy.yml` + permissão IAM + output `cloudfront_distribution_id`. **Pendente de Pedro:** `terraform apply` (aplica a permissão) + registrar secret `CLOUDFRONT_DISTRIBUTION_ID` no GitHub. T17 só pode fechar depois disso.
+- Restam T17–T18 (T17 bloqueado por T19).
 
 ### T1 — [Pedro] Rotacionar senha do Neon
 - **Comportamento observável:** credencial do Postgres trocada; nenhuma sessão/cliente usa a senha antiga.
@@ -286,6 +287,15 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 - **Plano de teste (smoke manual + revisão de código):** URL com todos os UTMs → hidden inputs e beacon usam esses valores, não o dataset renderizado; URL sem UTM → os 5 campos ficam vazios mesmo com dataset cacheado de outro visitante; URL com só 1 dos 5 UTMs → os outros 4 ficam vazios; comportamento idêntico em `/` e `/en/`.
 - **Traço ao DoD:** item 5.
 - **Orçamento de diff:** ~50 linhas.
+
+### T19 — Invalidação de cache do CloudFront no deploy (achado durante T17)
+- **Comportamento observável:** `deploy.yml` invalida `/*` na distribuição CloudFront como último passo; conteúdo novo visível em produção logo após o pipeline terminar, sem esperar o TTL default (24h) da cache policy.
+- **Blast radius (tocar):** `infra/terraform/main.tf` (permissão IAM `cloudfront:CreateInvalidation`), `infra/terraform/outputs.tf` (output `cloudfront_distribution_id`), `.github/workflows/deploy.yml`, `infra/README.md`.
+- **Blast radius (ler antes):** `decisions.md` (entrada de 2026-07-08).
+- **Achado:** ao tentar verificar produção pro T17 (fechamento do épico 001), `roosterlabs.com.br` ainda servia a copy v0.3 mesmo com o Lambda já atualizado — `cache_policy_id` = `CachingOptimized`, TTL default 24h, Go nunca manda `Cache-Control`. Sem invalidação automática, todo deploy fica "no ar" no Lambda mas invisível ao visitante por até um dia.
+- **Plano de teste:** Pedro registra o secret `CLOUDFRONT_DISTRIBUTION_ID`, `terraform apply` aplica a permissão IAM nova, próximo merge em `main` dispara o deploy e a invalidação; produção reflete a mudança em minutos, confirmado por `curl`/fetch.
+- **Traço ao DoD:** item 6 (pré-requisito para fechar o épico 001 por evidência real).
+- **Orçamento de diff:** ~40 linhas.
 
 ### T17 — Fechamento do épico 001 (skill `fechar-epico`)
 - **Comportamento observável:** os 11 itens do DoD do épico 001 verificados por evidência em produção (G1 via T15, G2 via T16); arquivo movido para `epics/done/`.

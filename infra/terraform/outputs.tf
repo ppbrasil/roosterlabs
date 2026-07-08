@@ -17,3 +17,8 @@ output "github_actions_role_arn" {
   value       = aws_iam_role.github_actions_deploy.arn
   description = "Role ARN para GitHub Actions assumir via OIDC"
 }
+
+output "cloudfront_distribution_id" {
+  value       = aws_cloudfront_distribution.landing.id
+  description = "ID da distribuicao CloudFront — registrar como secret CLOUDFRONT_DISTRIBUTION_ID no GitHub (deploy.yml invalida a cache a cada deploy, epico 002)"
+}

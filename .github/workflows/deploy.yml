@@ -63,6 +63,17 @@ jobs:
         run: |
           aws lambda wait function-updated --function-name roosterlabs-server
 
+      # Sem isso, o visitante continua vendo a versao anterior por ate 24h —
+      # TTL default da cache_policy CachingOptimized, ja que o Go nao manda
+      # Cache-Control (gap achado na verificacao de producao do epico 002,
+      # T19). "/*" e barato: primeiras 1000 invalidacoes de path/mes sao
+      # gratis, este pipeline usa 1 por deploy.
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
+
       - name: Print deployment summary
         run: |
           echo "Deployed image: $IMAGE_URI"
