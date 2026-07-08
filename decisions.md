@@ -3,6 +3,12 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-08 — Dependabot ignora `golangci-lint-action >= 7` até migração deliberada para golangci-lint v2
+
+- **Decisão:** `.github/dependabot.yml` ganha uma regra `ignore` para `golangci/golangci-lint-action` versões `>= 7`.
+- **Rationale:** o T6 do épico 002 fixou `golangci-lint-action@v6` com `golangci-lint v1.64.8` de propósito (v7+ exige migrar para golangci-lint v2 — config nova, regras mais estritas — fora do orçamento daquela tarefa). O Dependabot, cego a essa decisão, abriu a PR #8 pulando direto v6→v9 e quebrou o CI (`invalid version string 'v1.64.8', golangci-lint v1 is not supported by golangci-lint-action >= v7`). PR #8 deve ser fechada sem merge.
+- **Reversed if:** a migração para golangci-lint v2 for feita deliberadamente — nesse momento remover o `ignore` e deixar o Dependabot voltar a propor bumps normalmente.
+
 ## 2026-07-07 — Provider AWS bumpado de `~> 5.0` para `>= 6.28.0, < 7.0.0` (épico 002, T3)
 
 - **Decisão:** `infra/terraform/providers.tf` passa a exigir `>= 6.28.0, < 7.0.0` do provider `hashicorp/aws` (era `~> 5.0`).
