@@ -157,7 +157,17 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 - **T15 — feito.** `og.png`/`og-en.png` (gerados por marketing em `roosterlabs-marketing/brand/web/`) copiados para `web/static/`, substituindo o SVG que não gerava preview no LinkedIn/WhatsApp (fecha G1 do épico 001). Novo helper `ogImageFile(lang)` em `server.go` escolhe o PNG certo por idioma; `og:image:width`/`height`/`type` adicionados nas duas páginas. `og-image.svg` antigo não pôde ser removido (permissão do filesystem montado) — fica como arquivo morto inofensivo, remoção manual opcional. Teste novo `TestOGImagePerLanguage` cobre metatags corretas por idioma e `Content-Type: image/png` do arquivo servido.
 - **T16 — feito.** `app.js` agora lê `location.search` diretamente (via `URLSearchParams`) em vez de confiar no dataset do `<body>` — que é HTML servido pelo CloudFront e pode ter sido cacheado pra outro visitante (a política de cache ignora query string). Sobrescreve incondicionalmente (mesmo para `""`) os 5 hidden inputs do form no passo 1 e usa os mesmos valores no payload do beacon. Passos 2+ herdam o valor corrigido porque `utmFromForm` (form_handler.go) só ecoa o que foi submetido no passo anterior — não precisou tocar o form_handler nem os templates. Sem teste automatizado: como já previsto no plano da tarefa, T16 é smoke manual + revisão de código (não há infra de teste JS no repo; criar uma só para isso seria over-engineering fora do orçamento).
 - **T19 — aplicado.** Ao tentar fechar o épico 001 por evidência, `roosterlabs.com.br` ainda servia v0.3 mesmo com o Lambda já atualizado — `CachingOptimized` cacheia a página por até 24h sem `Cache-Control` do Go. Adicionado passo de `create-invalidation --paths "/*"` no fim do `deploy.yml` + permissão IAM + output `cloudfront_distribution_id`. `terraform apply` rodado com sucesso em 2026-07-08: permissão `cloudfront:CreateInvalidation` criada, `cloudfront_distribution_id = E217UBG541YE9Q`. **Pendente de Pedro:** registrar secret `CLOUDFRONT_DISTRIBUTION_ID` no GitHub + commit/push do código do T19 (main.tf/outputs.tf/deploy.yml/infra/README.md/decisions.md ainda não versionados). T17 só pode fechar depois do próximo deploy rodar com a invalidação.
-- Restam T17–T18 (T17 bloqueado por T19).
+- **T17 — feito.** Épico 001 fechado por evidência real em 2026-07-08 (LinkedIn Post Inspector + teste ao vivo de UTM no Chrome) — ver `epics/done/001-landing-page.md`.
+- **T18 — feito.** `docs/architecture.md` reescrito (diagrama + seção "Detalhes entregues no épico 002"); `infra/README.md` corrigido (linha desatualizada sobre redirect www via Go — na real é CloudFront Function — e tabela de Gotchas que tinha ficado quebrada com linha órfã) + nova seção de runbook sobre operação sem root (T2). Grep confirmou nenhuma referência a root/senha antiga do Neon.
+- Todas as 19 tarefas concluídas.
+
+### Progresso de execução (2026-07-09 — tentativa de fechamento)
+
+- **Pendências de Pedro do T19 — confirmadas resolvidas.** Secret `CLOUDFRONT_DISTRIBUTION_ID` registrado e funcionando: Deploy #10 (commit 63f9114) rodou com sucesso incluindo o passo "Invalidate CloudFront cache"; código do T19 commitado/pushado (2668bbb).
+- **Achado no fechamento — DoD 11 falha por evidência.** O log de Actions ainda tinha **dois** warnings de deprecação Node 20: (1) `aws-actions/configure-aws-credentials@v4` no deploy — não coberto pelo T6; (2) `golangci/golangci-lint-action@v6` no CI — a exceção deliberada do T6 (documentada em `decisions.md` + ignore no Dependabot), que o texto congelado do DoD 11 não reflete. Geradas duas tarefas-lacuna:
+- **T20 — feito.** PR #1 do Dependabot (`configure-aws-credentials` 4→6) mergeada em 2026-07-09 com autorização de Pedro, após verificação dos breaking changes de v5 (input handling booleano — não usamos) e v6 (Node 24 — runners hosted ok) contra o nosso uso (só `role-to-assume` + `aws-region`). Evidência de fechamento: log do deploy pós-merge sem o warning.
+- **T21 — tarefa-lacuna aberta (bloqueia DoD 11 e o fechamento do épico).** Migração golangci-lint v1.64.8 → v2 + `golangci-lint-action` v6 → atual, único caminho para zerar o warning restante. **Decisão de Pedro (2026-07-09): segurar o fechamento do 002 até esta migração** — oferecida a alternativa de fechar com exceção documentada via emenda ao DoD; recusada. Ao concluir, remover o `ignore` do `.github/dependabot.yml` (ver `decisions.md` 2026-07-08).
+- Evidências dos demais itens do DoD colhidas em 2026-07-09 e anotadas na seção Fechamento (pré-preenchida); épico permanece **em-execução** até T21.
 
 ### T1 — [Pedro] Rotacionar senha do Neon
 - **Comportamento observável:** credencial do Postgres trocada; nenhuma sessão/cliente usa a senha antiga.
@@ -313,6 +323,36 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 - **Traço ao DoD:** item 16.
 - **Orçamento de diff:** ~100 linhas.
 
+### T21 — Migração golangci-lint v2 (tarefa-lacuna do fechamento)
+- **Comportamento observável:** CI roda sem warning de deprecação Node 20; lint continua bloqueando PR vermelho.
+- **Blast radius (tocar):** `.golangci.yml` (config nova do v2), `.github/workflows/ci.yml` (`golangci-lint-action` → versão atual), `.github/dependabot.yml` (remover o `ignore` de `golangci-lint-action >= 7`), código Go que as regras mais estritas do v2 apontarem.
+- **Blast radius (ler antes):** guia oficial de migração v1→v2 do golangci-lint; `decisions.md` (entradas de 2026-07-08 sobre o ignore e o T6).
+- **Plano de teste:** `make test` + lint local verdes no devcontainer; CI verde no PR; log do CI sem warning de Node 20; um erro de lint proposital ainda quebra o CI (gate preservado).
+- **Traço ao DoD:** item 11.
+- **Orçamento de diff:** ~60 linhas de config/workflow + fixes de lint que surgirem (se explodirem, parar e reavaliar com Pedro).
+
 ## Fechamento (skill `fechar-epico`)
 
-_A preencher no fechamento._
+**Estado em 2026-07-09: fechamento bloqueado por decisão de Pedro — DoD 11 pendente da T21 (migração golangci v2).** Todas as demais evidências já colhidas e registradas abaixo; ao fechar T21, reconferir só o item 11 e concluir.
+
+| # | Item | Evidência (2026-07-09, salvo indicação) |
+|---|---|---|
+| 1 | Copy v0.4 fiel | Fetch de produção `/` e `/en/`: tagline, H1 anti-categoria, H2, tabela ✓/✗ 6 linhas, seção alfa, form v0.4 (PT sem "fractional"; EN com) — batem com a v0.4; testes de copy exata no CI verdes. `landing-page.md` upstream já avançou para v0.5 (épico 003) — conferência linha a linha feita contra os fragmentos v0.4 congelados neste épico + testes |
+| 2 | Fontes reais | `document.fonts.check` em produção: Inter ✓, IBM Plex Mono ✓, Fraunces w600 ✓ (w500 não carregado por lazy-load — nenhum elemento o usa); `body` computado = `Inter, Arial, sans-serif` |
+| 3 | Acentuação PT | Texto renderizado em produção correto ("Você", "consistência", "própria", etc.) |
+| 4 | OG PNG por rota | Metatags em produção: `/`→`og.png`, `/en/`→`og-en.png`, `width/height/type` corretos; preview LinkedIn Post Inspector + WhatsApp evidenciado no fechamento do 001 (2026-07-08) |
+| 5 | UTM × cache | Teste ao vivo: `/?utm_source=fech002&utm_medium=chrome&utm_campaign=dod5` → hidden inputs exatamente esses valores, `utm_term`/`utm_content` vazios (não herdou cache); idem em `/en/` |
+| 6 | 001 fechado/arquivado | `epics/done/001-landing-page.md` (commits 40e2495, 63f9114) |
+| 7 | Neon rotacionada; AWS sem root | Evidência registrada 2026-07-07/08: submissão de teste + query no Neon pós-rotação; `aws sts get-caller-identity` = `user/ppbrasil-admin` |
+| 8 | Deploy só com CI verde | Deploy #10 "Triggered via workflow run" com `conclusion == success`; PR do golangci com CI vermelho fechada sem disparar deploy |
+| 9 | Permissão Lambda no TF sem drift | `terraform apply` limpo em 2026-07-08 (T19) após import do T3 — plan de reconfirmação fica a critério de Pedro no fechamento final |
+| 10 | www → 301 apex | Navegação real: `www.roosterlabs.com.br/en/?utm_source=www301&utm_medium=redirect` → apex `/en/` com os dois UTMs intactos nos hidden inputs (path + query preservados) |
+| 11 | **PENDENTE — T21** | Warning do deploy morto pela T20 (PR #1 mergeada); warning do CI (`golangci-lint-action@v6`) só morre com a migração v2 |
+| 12 | Render em buffer | `TestRenderLandingTemplateErrorDoesNotWritePartialBody` + `TestRenderFormStepTemplateErrorDoesNotWritePartialBody` no repo; CI verde |
+| 13 | Struct único | `formTemplateData` ausente do código (grep); só `pageData` |
+| 14 | CI verde em PRs | Histórico: 13 runs, falha só na PR do Dependabot que era para ser fechada |
+| 15 | Deploy automático | Deploy #10 + invalidação CloudFront → produção servindo v0.4 minutos após merge |
+| 16 | `docs/architecture.md` atualizado | T18 commitado em 2026-07-09 (estava só no working tree) |
+| 17 | Custo ≤ ~US$1/mês | **Verificação de Pedro no fechamento final** (fatura AWS + Neon) — anotado por decisão de 2026-07-09 |
+
+_Notas de roteamento (strategy/marketing/issues) e handoff: a preencher no fechamento final, pós-T21._

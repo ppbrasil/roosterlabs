@@ -62,7 +62,7 @@ Fluxo em `main`:
 
 ## `www.` redireciona para o apex (épico 002)
 
-`www.roosterlabs.com.br` é servido pela mesma distribuição CloudFront (alias adicional, cert ACM já é wildcard) e recebe um `A` record próprio no Route53. O redirect 301 para o apex é feito pelo servidor Go com base no header `Host` — não há segunda distribuição nem Lambda@Edge (mais simples, mesmo container).
+`www.roosterlabs.com.br` é servido pela mesma distribuição CloudFront (alias adicional, cert ACM já é wildcard) e recebe um `A` record próprio no Route53. O redirect 301 é feito por uma **CloudFront Function** (`aws_cloudfront_function.www_redirect`, evento `viewer-request`) — **não** pelo servidor Go: o `origin_request_policy_id` (`Managed-AllViewerExceptHostHeader`, ver Gotchas abaixo) existe justamente para nunca repassar o `Host` real ao Lambda, então o Go jamais veria se a requisição veio de `www.` ou do apex. A função roda na borda, sem invocar o Lambda — mais barato e mais simples que Lambda@Edge para um redirect deste tamanho.
 
 ## Operação de dados (Neon)
 
@@ -108,6 +108,7 @@ terraform apply ...   # retomará de onde parou
 |---|---|---|
 | 403 `AccessDeniedException` via CloudFront | política `Managed-AllViewer` encaminha o header `Host` do visitante; Function URL rejeita Host ≠ o dela | origin request policy `Managed-AllViewerExceptHostHeader` (`b689b0a8-...`) — já no Terraform |
 | 403 direto na Function URL, resource policy correta | desde out/2025 URL pública exige **duas** permissões: `lambda:InvokeFunctionUrl` E `lambda:InvokeFunction` (condição `lambda:InvokedViaFunctionUrl`) | codificado no Terraform desde o épico 002 (`aws_lambda_permission.function_url_invoke`) — se a conta já tem a permissão manual do épico 001, importar antes de aplicar (ver abaixo) |
+| `Runtime.InvalidEntrypoint` / `fork/exec: permission denied` com binário e permissões corretos | distroless `:nonroot` no Lambda (workdir `/home/nonroot` inacessível ao usuário sandbox) | usar variante root — ver `decisions.md` 2026-07-07 |
 
 ### Importar a permissão manual do Lambda (épico 002, uma vez por conta existente)
 
@@ -127,7 +128,10 @@ terraform plan   # deve sair limpo, sem diff
 Conta nova: `terraform apply` já cria o recurso — nenhum import necessário.
 
 **Nota (2026-07-07):** a primeira tentativa de aplicar este recurso usou `function_url_auth_type = "NONE"` em vez de `invoked_via_function_url = true` — a API da AWS rejeita `function_url_auth_type` para a ação `lambda:InvokeFunction` (`InvalidParameterValueException`). Corrigido; `main.tf` já reflete a versão certa.
-| `Runtime.InvalidEntrypoint` / `fork/exec: permission denied` com binário e permissões corretos | distroless `:nonroot` no Lambda (workdir `/home/nonroot` inacessível ao usuário sandbox) | usar variante root — ver `decisions.md` 2026-07-07 |
+
+### Credenciais de operação: sem root (épico 002, T2)
+
+A conta AWS não usa mais o usuário root para operação do dia a dia. Existe um usuário IAM `ppbrasil-admin` com política `AdministratorAccess` + `SignInLocalDevelopmentAccess` (necessária para `aws login` via browser) e MFA configurado; o profile `default` do `aws login` aponta pra esse usuário. Sanity check: `aws sts get-caller-identity` deve retornar `arn:aws:iam::385129732099:user/ppbrasil-admin`, nunca a conta root. Se algum dia retornar root, pare e recrie o profile — root não deve ser usado para nada além do bootstrap inicial da conta.
 
 ### Cache do CloudFront
 
