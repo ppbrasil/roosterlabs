@@ -1,6 +1,6 @@
 # Épico 003 — Landing v0.5: hero novo + identidade Albert Sans
 
-**Estado:** escopado <!-- proposto | escopado | aceito | em-execução | concluído -->
+**Estado:** aceito <!-- proposto | escopado | aceito | em-execução | concluído -->
 **Origem:** marketing · 2026-07-09
 **Prioridade servida:** MVP + 2–3 clientes pagantes (as reações de prospects que alimentam o Objetivo 1 do GTM OKR — `roosterlabs-marketing/gtm-okrs.md` — precisam ser colhidas sobre a mensagem v0.5 e a identidade que Pedro de fato aprovou, não sobre a versão anterior)
 
@@ -81,9 +81,7 @@ Escopado em 2026-07-09.
 
 **Atualização proposta de `docs/architecture.md`:** sem mudança de diagrama (rotas e dados não mudam); na seção de frontend, trocar a menção a Fraunces por Albert Sans (mesma exceção de CDN decorativo), registrar os assets novos em `/static/` (watermark webp, ícone do rodapé) e a nota do cache de OG do LinkedIn (re-scrape via Post Inspector após troca de imagem com mesmo nome).
 
-## DoD — Definition of Done (congela no aceite)
-
-Rascunho — congela no `validar-escopo`.
+## DoD — Definition of Done (congelado no aceite de 2026-07-10)
 
 | # | Item verificável | Evidência de fechamento |
 |---|---|---|
@@ -101,7 +99,11 @@ Rascunho — congela no `validar-escopo`.
 
 ## Log de validação (skill `validar-escopo`)
 
-_A preencher._
+- 2026-07-10 — **aprovado** (validação de Pedro em 2026-07-10; aceite registrado após o cumprimento da pré-condição — épico 002 fechado 17/17 por evidência e arquivado em `done/` na mesma data, via T21).
+  - Os três pontos deferidos ao aceite confirmados por Pedro como propostos no escopo: (1) CTA âncora no hero rolando ao `#lead-form` (fecha lacuna herdada da v0.4 que a spec do watermark pressupõe); (2) `meta description` acompanha o sub v0.5, `og:description` e title inalterados; (3) transições do form (UX entre etapas) **fora** deste épico — se marketing quiser, é épico/definição à parte com spec própria.
+  - Nenhum long shot identificado no escopo; mudança 100% frontend/assets, sem rotas, dados ou infra.
+  - **DoD congelado nesta data (11 itens).** Alteração posterior exige novo ciclo de validação registrado neste log.
+  - Próximo passo: `quebrar-epico` (engineering) — estado → `em-execução`.
 
 ## Quebra (skill `quebrar-epico`)
 

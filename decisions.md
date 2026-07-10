@@ -3,6 +3,18 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-10 — golangci-lint migrado para v2 (v2.12.2 + action v9); ignore do Dependabot removido (épico 002, T21)
+
+- **Decisão:** CI usa `golangci-lint-action@v9` com `golangci-lint v2.12.2`. Sem `.golangci.yml` — o conjunto default "standard" do v2 equivale ao default do v1 (gosimple absorvido pelo staticcheck); config só entra quando houver necessidade real. Removido o `ignore` de `golangci-lint-action >= 7` do `.github/dependabot.yml` (condição de reversão da entrada de 2026-07-08 cumprida).
+- **Rationale:** era o último warning de deprecação Node 20 nos workflows (DoD 11 do épico 002); Pedro decidiu segurar o fechamento do épico até a migração em vez de fechar com exceção documentada. A migração custou menos que o orçado (nenhuma config para converter) e o v2 achou 1 `errcheck` real (`postgres_store.go`, `defer rows.Close()` sem tratamento) que o v1 deixava passar.
+- **Reversed if:** N/A (não voltar para v1). Se o default do v2 ficar barulhento em código legítimo, criar `.golangci.yml` mínimo em vez de downgrade.
+
+## 2026-07-10 — `aws_lambda_function.image_uri` sob `ignore_changes` (Terraform = bootstrap; pipeline = dono da imagem)
+
+- **Decisão:** `lifecycle { ignore_changes = [image_uri] }` no recurso do Lambda. O `:latest` do `main.tf` serve só à primeira provisão; depois, o `deploy.yml` aponta a função para a tag do SHA de cada commit.
+- **Rationale:** descoberto ao reconfirmar o DoD 9 (plan limpo): todo deploy criava drift no `image_uri` (`:SHA` real vs. `:latest` declarado), e um `terraform apply` desavisado re-apontaria produção para a tag mutável `:latest` — perdendo rastreabilidade e, se o `:latest` estiver defasado, fazendo rollback silencioso. Com o ignore, `terraform plan` volta a ser critério objetivo de drift zero.
+- **Reversed if:** o deploy migrar para o próprio Terraform (ex.: pipeline rodando `terraform apply` com var de imagem) — aí o TF volta a ser dono do `image_uri`.
+
 ## 2026-07-08 — `deploy.yml` invalida a cache do CloudFront (`/*`) a cada deploy (épico 002, T19)
 
 - **Decisão:** novo passo `aws cloudfront create-invalidation --paths "/*"` no fim de `deploy.yml`, com permissão IAM `cloudfront:CreateInvalidation` (escopada ao ARN da distribuição) adicionada à role `github-actions-deploy`. Novo output `cloudfront_distribution_id` em `outputs.tf`, registrado como secret `CLOUDFRONT_DISTRIBUTION_ID`.

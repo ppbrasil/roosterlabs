@@ -1,6 +1,6 @@
 # Épico 002 — Sincronizar landing com v0.4 e fechar lacunas do 001
 
-**Estado:** em-execução <!-- proposto | escopado | aceito | em-execução | concluído -->
+**Estado:** concluído <!-- proposto | escopado | aceito | em-execução | concluído -->
 **Origem:** marketing · 2026-07-07
 **Prioridade servida:** MVP + 2–3 clientes pagantes (a mensagem em produção precisa ser a mensagem que Pedro de fato aprovou, sem bugs de credibilidade, para que as reações de prospects que alimentam o Objetivo 1 do GTM OKR — `roosterlabs-marketing/gtm-okrs.md` — meçam a coisa certa)
 **Tipo:** output (sync v0.4) + **backpack-relief** (débitos técnicos do backlog unificado incorporados em 2026-07-07 por decisão explícita de Pedro — ver Escopo proposto)
@@ -334,7 +334,7 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 
 ## Fechamento (skill `fechar-epico`)
 
-**Estado em 2026-07-09: fechamento bloqueado por decisão de Pedro — DoD 11 pendente da T21 (migração golangci v2).** Todas as demais evidências já colhidas e registradas abaixo; ao fechar T21, reconferir só o item 11 e concluir.
+**Fechado em 2026-07-10 — 17/17 itens do DoD por evidência.** (Em 2026-07-09 o fechamento ficou bloqueado por decisão de Pedro — DoD 11 pendente da T21; T21 executada e evidenciada em 2026-07-10.)
 
 | # | Item | Evidência (2026-07-09, salvo indicação) |
 |---|---|---|
@@ -348,7 +348,7 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 | 8 | Deploy só com CI verde | Deploy #10 "Triggered via workflow run" com `conclusion == success`; PR do golangci com CI vermelho fechada sem disparar deploy |
 | 9 | Permissão Lambda no TF sem drift | `terraform plan` em 2026-07-10: **"No changes. Your infrastructure matches the configuration."** Achado no caminho: o único drift era estrutural — `image_uri` (`:latest` no TF vs. tag por SHA que o `deploy.yml` aponta a cada deploy); resolvido com `lifecycle { ignore_changes = [image_uri] }` no `aws_lambda_function` (TF = bootstrap; pipeline = dono da imagem), o que também elimina o risco de um `apply` re-apontar produção para tag mutável |
 | 10 | www → 301 apex | Navegação real: `www.roosterlabs.com.br/en/?utm_source=www301&utm_medium=redirect` → apex `/en/` com os dois UTMs intactos nos hidden inputs (path + query preservados) |
-| 11 | **PENDENTE — T21** | Warning do deploy morto pela T20 (PR #1 mergeada); warning do CI (`golangci-lint-action@v6`) só morre com a migração v2 |
+| 11 | Actions sem warning de deprecação | T20: Deploy #11/#13 (pós-merge da PR #1, `configure-aws-credentials@v6`) sem annotations. T21: CI #16 (commit a5ec9f0, golangci v2.12.2 + action v9) — **Success, zero annotations** (CI #13 tinha 1 warning) |
 | 12 | Render em buffer | `TestRenderLandingTemplateErrorDoesNotWritePartialBody` + `TestRenderFormStepTemplateErrorDoesNotWritePartialBody` no repo; CI verde |
 | 13 | Struct único | `formTemplateData` ausente do código (grep); só `pageData` |
 | 14 | CI verde em PRs | Histórico: 13 runs, falha só na PR do Dependabot que era para ser fechada |
@@ -356,4 +356,21 @@ Racional da ordem: T1/T2 primeiro por decisão explícita de Pedro (segurança/o
 | 16 | `docs/architecture.md` atualizado | T18 commitado em 2026-07-09 (estava só no working tree) |
 | 17 | Custo ≤ ~US$1/mês | Fechado 2026-07-10 por leitura direta dos consoles: AWS Bills julho/2026 = **US$ 0,57** (Route 53 US$ 0,50; resto free tier) + Neon = **US$ 0** (plano Free, 1,85 CU-hrs, 32 MB). Achado colateral: billing era invisível para IAM users ("Activate IAM Access" desativado — leitura exigia root, contra o espírito do T2); IAM Access ao billing ativado em 2026-07-10 (console mostra "Activated") — checagens futuras de custo dispensam root |
 
-_Notas de roteamento (strategy/marketing/issues) e handoff: a preencher no fechamento final, pós-T21._
+### Roteamento de aprendizados
+
+**Engenharia (candidatos a issue / já resolvidos no ato):**
+- *(resolvido)* Drift estrutural do `image_uri` → `ignore_changes` (ver `decisions.md` 2026-07-10). Aprendizado: "plan limpo" só é critério utilizável se o TF não disputar propriedade de atributo com o pipeline.
+- *(resolvido)* golangci v2 pegou `errcheck` real que o v1 deixava passar — linter mais novo achou bug latente; manter Dependabot sem ignores é o guardrail.
+- *(aberto — backlog `_strategy/backlog.md` se recorrer)* Billing da AWS era invisível para IAM users até ativar "IAM user and role access to Billing information" (feito via root em 2026-07-10, exigência da AWS compatível com a regra do T2). Checagens de custo agora funcionam com `ppbrasil-admin`.
+- *(aberto — herdado, sem mudança)* Migração do estado do Terraform para S3 segue adiada (decisão de Pedro 2026-07-07); o gatilho "segundo motivo para mexer na infra" já apareceu duas vezes.
+
+**Nota para strategy:** custo de infra confirmado em **US$ 0,57/mês** (Route 53 é praticamente o único custo; Lambda/CloudFront/ECR no free tier) + Neon US$ 0 — folga enorme contra o teto de ~US$1; nenhum sinal de que o modelo de custo precise de revisão antes de tráfego real.
+
+**Nota para marketing (impacto em GTM):** a v0.4 está fielmente em produção nas duas rotas — copy conferida linha a linha, OG por idioma com preview correto, UTM à prova de cache. Os dados que alimentam os KRs do Objetivo 1 medem a mensagem real a partir de agora. Nenhum problema de copy/posicionamento encontrado na execução; nenhum ajuste solicitado. Heads-up: épico 003 (v0.5) escopado e validado — hero novo entra no ar quando o 003 executar.
+
+### Handoff (para `definir-epico` / sessão de strategy-marketing)
+
+- **Entregue:** landing v0.4 fiel em produção (PT/EN) com tipografia real, OG raster por idioma, UTM correto sob cache de borda; pipeline endurecido (deploy só com CI verde, invalidação automática de cache, zero warnings, Dependabot sem ignores); infra sem drift (`terraform plan` = "No changes"); ops sem root (IAM admin + billing acessível); senha do Neon rotacionada; código sem HTML parcial em erro e sem structs duplicados; épico 001 fechado e arquivado.
+- **Evidências-chave:** tabela acima (produção testada ao vivo em 2026-07-09/10; CI #16 e Deploy #13 limpos; plan limpo em 2026-07-10; faturas lidas nos consoles).
+- **Próximo passo já decidido:** épico 003 (landing v0.5) — escopado 2026-07-09, validado por Pedro 2026-07-10, aceito com DoD congelado; pronto para `quebrar-epico`.
+- **Candidatos futuros (não decididos):** favicon novo (aguarda asset de redução micro), versão pen-700 do ícone, backend S3 do Terraform, página de sign-up (Objetivo 2 do GTM).
