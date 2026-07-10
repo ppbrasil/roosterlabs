@@ -8,11 +8,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    ignore:
-      # v7+ larga suporte a golangci-lint v1 (estamos em v1.64.8 de
-      # propósito — migrar pra v2 é decisão à parte, fora do orçamento do
-      # épico 002 T6). PR #8 do Dependabot pulou v6->v9 e quebrou o CI
-      # (invalid version string 'v1.64.8'). Remover este ignore só quando a
-      # migração pra golangci-lint v2 for feita deliberadamente.
-      - dependency-name: "golangci/golangci-lint-action"
-        versions: [">= 7"]
+    # (2026-07-10) Removido o ignore de golangci-lint-action >= 7: a migração
+    # para golangci-lint v2 foi feita deliberadamente no épico 002, T21.

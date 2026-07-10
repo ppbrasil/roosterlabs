@@ -117,7 +117,9 @@ func (p *postgresStore) FinalizeLead(ctx context.Context, in FinalizeInput) erro
 	if err != nil {
 		return fmt.Errorf("query answers: %w", err)
 	}
-	defer rows.Close()
+	// rows.Err() (checado abaixo) captura erros de iteração; o erro de Close
+	// num result set já consumido não tem ação útil — descartado de propósito.
+	defer func() { _ = rows.Close() }()
 
 	answers := map[int]map[string]string{}
 	for rows.Next() {

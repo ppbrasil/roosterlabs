@@ -55,6 +55,14 @@ resource "aws_lambda_function" "server" {
     }
   }
 
+  # O ":latest" acima é só bootstrap da primeira provisão. Depois disso o
+  # dono da imagem é o deploy.yml, que aponta o Lambda para a tag do SHA de
+  # cada commit (rastreável). Sem este ignore, todo deploy gera drift no
+  # plan e um "terraform apply" desavisado re-apontaria para a tag mutável.
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
+
   tags = local.tags
 }
 

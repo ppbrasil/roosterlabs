@@ -16,13 +16,13 @@ jobs:
       - run: go build ./...
       - run: go vet ./...
       - run: go test ./...
-      # Presa em v6/v1.64.8 de propósito: golangci-lint-action >= v7 exige
-      # golangci-lint v2 (regras mais estritas, config nova) — migração real,
-      # fora do orçamento de diff deste bump. Fica em node20 até essa
-      # decisão ser tomada à parte (ver nota no épico 002, T6).
-      - uses: golangci/golangci-lint-action@v6
+      # golangci-lint v2 (migração deliberada — épico 002, T21). Sem
+      # .golangci.yml no repo: roda o conjunto default ("standard") do v2,
+      # equivalente ao default do v1 (gosimple foi absorvido pelo
+      # staticcheck). Versão pinada; Dependabot mantém a action atualizada.
+      - uses: golangci/golangci-lint-action@v9
         with:
-          version: v1.64.8
+          version: v2.12.2
 
   docker:
     runs-on: ubuntu-latest
