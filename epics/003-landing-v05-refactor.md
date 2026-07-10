@@ -1,6 +1,6 @@
 # Épico 003 — Landing v0.5: hero novo + identidade Albert Sans
 
-**Estado:** aceito <!-- proposto | escopado | aceito | em-execução | concluído -->
+**Estado:** em-execução <!-- proposto | escopado | aceito | em-execução | concluído -->
 **Origem:** marketing · 2026-07-09
 **Prioridade servida:** MVP + 2–3 clientes pagantes (as reações de prospects que alimentam o Objetivo 1 do GTM OKR — `roosterlabs-marketing/gtm-okrs.md` — precisam ser colhidas sobre a mensagem v0.5 e a identidade que Pedro de fato aprovou, não sobre a versão anterior)
 
@@ -107,7 +107,80 @@ Escopado em 2026-07-09.
 
 ## Quebra (skill `quebrar-epico`)
 
-_A preencher._
+Quebrado em 2026-07-10. `gh` indisponível neste ambiente (mesma limitação dos épicos 001/002) — esta lista é a fonte oficial das tarefas.
+
+**Ordem de ataque proposta: T1 → T2 → T3 → T4 → T5 → T6 → T7.**
+
+Racional: T1 (tipografia) primeiro porque todo o resto renderiza em Albert Sans — hero, wordmark e tabela dependem dela para verificação visual honesta. T2 (hero) é a maior mudança de conteúdo e define o layout sobre o qual T3 (watermark) se posiciona — nessa ordem se evita posicionar a marca d'água duas vezes. T4 (tabela) e T5 (rodapé) são independentes entre si, mas ambas tocam `site.css` — sequenciais para não competir por merge. T6 (OG) por último antes dos docs: não colide com nada e sua verificação (re-scrape) só faz sentido com tudo em produção. T7 (docs) é sempre a última. Restrição de ambiente herdada do 002: sem toolchain Go no sandbox — `make test` roda no devcontainer de Pedro antes de cada push.
+
+### T1 — Albert Sans no lugar de Fraunces (display real, guardrail do peso fino)
+- **Comportamento observável:** H1–H3 e wordmark renderizam em Albert Sans carregada de verdade; peso 300 só onde o texto computado é ≥36px (na prática: só o H1 no clamp cheio), 400 nos demais; nenhuma referência a Fraunces no repo (link, CSS ou testes).
+- **Blast radius (tocar):** `web/templates/index.html.tmpl` + `index.en.html.tmpl` (`<link>` Google Fonts: sai Fraunces, entra `Albert+Sans:wght@300;400;500`), `web/static/site.css` (`h1,h2,h3` → Albert Sans; h1 peso 300, h2/h3 peso 400), `internal/server/server_test.go` (`TestFontsLoadedFromGoogleFonts`).
+- **Blast radius (ler antes):** `roosterlabs-marketing/visual-identity.md` v0.5 (guardrail do peso fino, pesos por papel), `site.css` na íntegra.
+- **Plano de teste:** `<link>` com `Albert+Sans` e sem `Fraunces` nas duas rotas; `display=swap` presente; grep de "Fraunces" no repo = zero; fallback sans-serif se o CDN falhar (página funcional); h2 em peso 400 (não 300) — inspeção visual no fechamento; Inter/IBM Plex Mono intactas.
+- **Traço ao DoD:** item 2.
+- **Orçamento de diff:** ~60 linhas.
+
+### T2 — Hero v0.5 PT/EN (tagline como H1 com "AI" âmbar, sub, linha de fechamento, CTA)
+- **Comportamento observável:** `GET /` e `GET /en/` renderizam o hero v0.5: H1 "Você. AImplificado."/"You. AImplified." com **apenas o prefixo "AI" em âmbar** (span), sem eyebrow; sub v0.5; linha de fechamento própria destacada em paper-100; botão CTA ("Quero uma vaga no alfa"/"Get an alpha seat") rolando até `#lead-form`; `meta description` = sub v0.5; title e og:description inalterados. Demais seções intocadas.
+- **Blast radius (tocar):** `web/templates/index.html.tmpl`, `index.en.html.tmpl` (header + meta description), `web/static/site.css` (`.eyebrow` sai do hero — conferir se segue usada em outro lugar antes de remover a classe; estilos do span âmbar, da linha de fechamento e do CTA), `internal/server/server_test.go` (testes de copy do hero).
+- **Blast radius (ler antes):** `roosterlabs-marketing/landing-page.md` v0.5 (Hero PT/EN, racional do "AI" âmbar), testes atuais que asseguram o H1 anti-categoria e o eyebrow.
+- **Plano de teste:** H1 exato por idioma com span só no "AI" (não na palavra inteira — teste de markup); eyebrow ausente; sub e linha de fechamento exatos; CTA presente com `href="#lead-form"` e o form continua com esse id; meta description nova por idioma; testes antigos do H1 v0.4 atualizados para não falsear; H2 do problema e seções seguintes intactas (asserts existentes continuam passando).
+- **Traço ao DoD:** itens 1, 7.
+- **Orçamento de diff:** ~150 linhas (dividir PT/EN em dois commits se estourar).
+
+### T3 — Watermark do galo no hero
+- **Comportamento observável:** galo (asset web) atrás do texto do hero, lado direito, opacidade 16%, integrado ao glow âmbar existente; nunca sobrepõe o H1; em viewport ~390px recua para trás do CTA ou some (spec v0.5).
+- **Blast radius (tocar):** copiar `roosterlabs-marketing/brand/web/rooster-full.webp` (26 KB) para `web/static/`, `web/templates/index*.html.tmpl` (elemento decorativo `aria-hidden="true"` no header), `web/static/site.css` (posicionamento absoluto, opacidade, media query), `internal/server/server_test.go` (asset servido + presença do elemento).
+- **Blast radius (ler antes):** `visual-identity.md` v0.5 (spec do watermark: regras de competição com H1, mobile), `site.css` (gradientes do body — o glow âmbar fica a 15%/15%, o watermark vai à direita).
+- **Plano de teste:** elemento presente nas duas rotas com `aria-hidden`; `Content-Type` correto do `.webp` servido; opacidade 16% no CSS; sem overflow horizontal em 390px; texto do H1 legível sobre o watermark (verificação visual desktop+mobile no fechamento); página íntegra se o asset 404 (é `<img>` decorativa/background, não quebra layout).
+- **Traço ao DoD:** item 3.
+- **Orçamento de diff:** ~60 linhas (asset binário não conta).
+
+### T4 — ✓/✗ semânticos na tabela (tokens ok/no)
+- **Comportamento observável:** todos os ✓ da tabela de comparação renderizam em `ok-500` (#82B88A) e todos os ✗ em `no-500` (#C96F6F), nas duas rotas; tokens novos disponíveis no CSS mas usados só em contexto de comparação (regra da identidade).
+- **Blast radius (tocar):** `web/static/site.css` (`--ok-500`/`--no-500` no `:root` + classes `.mark-ok`/`.mark-no`), `web/templates/index.html.tmpl` + `index.en.html.tmpl` (12 células ✓/✗ por página ganham span), `internal/server/server_test.go` (teste da tabela atualizado para contar spans por classe).
+- **Blast radius (ler antes):** `visual-identity.md` v0.5 (paleta, regra "só semântica"), teste atual da tabela (conta ✓/✗ literais).
+- **Plano de teste:** contagem exata por classe e por idioma (12 ✓ / 6 ✗ na tabela v0.5, igual à v0.4); nenhum ✓/✗ fora de span; tokens não usados em CTA/link/destaque (grep); contraste dos tons dessaturados sobre ink legível (visual no fechamento).
+- **Traço ao DoD:** item 4.
+- **Orçamento de diff:** ~60 linhas.
+
+### T5 — Rodapé com ícone + wordmark
+- **Comportamento observável:** rodapé das duas rotas exibe o ícone do galo + wordmark "RoosterLabs" em Albert Sans 500 — "Rooster" em paper-100, "Labs" em âmbar — mantendo contato e link de idioma atuais.
+- **Blast radius (tocar):** gerar derivado otimizado do ícone (~112px, a partir de `roosterlabs-marketing/brand/rooster-icon-transparent.png` 1024px/1,6 MB) em `web/static/`, `web/templates/index*.html.tmpl` (markup do footer), `web/static/site.css` (`.site-footer`), `internal/server/server_test.go`.
+- **Blast radius (ler antes):** `visual-identity.md` v0.5 (wordmark: peso 500 obrigatório em tamanho pequeno; ícone ≥28px), `.site-footer` atual no CSS.
+- **Plano de teste:** asset servido ≤ ~30 KB com `Content-Type` correto; `alt` adequado no ícone; wordmark com os dois tons (span); footer íntegro em 390px (ícone + texto sem quebra feia); e-mail de contato e link de idioma preservados (asserts existentes).
+- **Traço ao DoD:** item 5.
+- **Orçamento de diff:** ~70 linhas (asset binário não conta).
+
+### T6 — OG images v0.5 por rota
+- **Comportamento observável:** `og.png`/`og-en.png` em `web/static/` são os arquivos v0.5 (composição com tagline-H1 e "AI" âmbar); metatags já corretas desde o 002 — sem mudança de markup.
+- **Blast radius (tocar):** copiar `roosterlabs-marketing/brand/web/og.png` + `og-en.png` (v0.5, gerados 2026-07-09) por cima dos v0.4 em `web/static/`.
+- **Blast radius (ler antes):** `roosterlabs-marketing/decisions.md` (spec/evidência dos OGs v0.5).
+- **Plano de teste:** arquivos servidos são os novos (tamanho/hash diferem dos v0.4); 1200×630 PNG; **pós-deploy: re-scrape no LinkedIn Post Inspector** (cache de OG do LinkedIn é por URL — trocar o arquivo não basta) + preview no WhatsApp, nas duas rotas.
+- **Traço ao DoD:** item 6.
+- **Orçamento de diff:** ~0 linhas de código (assets binários).
+
+### T7 — Atualizar `docs/architecture.md`
+- **Comportamento observável:** o doc descreve o frontend como ficou: Albert Sans via Google Fonts (mesma exceção decorativa), assets novos em `/static/` (watermark webp, ícone do rodapé), nota do re-scrape de OG no LinkedIn.
+- **Blast radius (tocar):** `docs/architecture.md`.
+- **Blast radius (ler antes):** seção "Mudança no sistema" deste épico; mudanças consolidadas de T1–T6.
+- **Plano de teste:** nenhuma referência a Fraunces; sem mudança de diagrama (rotas/dados intactos); instruções reproduzíveis.
+- **Traço ao DoD:** item 10.
+- **Orçamento de diff:** ~40 linhas.
+
+_Itens transversais do DoD (8, 9, 11) são verificados por tarefa (CI/deploy) e no fechamento (custo)._
+
+### Progresso de execução
+
+- **Desvio de processo registrado (2026-07-10, decisão de Pedro):** em vez de branch+PR por tarefa, o épico inteiro roda na branch `t1-albert-sans` com **um commit por tarefa** e uma única PR ao final. Mantidos: revisor de contexto limpo por tarefa, CI verde em cada push, revisão de Pedro commit a commit na PR. Ganho: deploy atômico da v0.5 (sem estados híbridos em produção). Racional: tarefas pequenas, tráfego ~zero, empresa solo.
+- **T1 — feita (2026-07-10).** Albert Sans 300/400/500 via Google Fonts nas duas rotas; `site.css` com guardrail do peso fino codificado (300 só ≥36px; media query 600px derivada do clamp do h1 — **quem fizer T2 revisita se mexer no clamp**); Fraunces zerada de link/CSS/testes. Revisor aprovou; achado dele incorporado (teste também confere o `site.css` servido). Nota do revisor: "grep Fraunces = zero" vale para referências de USO — docs/architecture.md só atualiza na T7, e citações históricas em decisions.md/épicos ficam.
+- **T2 — feita (2026-07-10).** Hero v0.5 nas duas rotas: H1 tagline com span `.ai-accent` só no "AI", sem eyebrow (classe removida do CSS — uso zero), sub v0.5, linha de fechamento `.hero-close` (paper-100, destaque), CTA `.hero-cta` âncora para `#lead-form` (mesmo desenho do botão do form); meta description = sub v0.5. T2 não tocou o clamp do h1 — media query da T1 segue válida. Revisor conferiu a copy **caractere a caractere** contra `landing-page.md` v0.5 (byte a byte, PT e EN) e aprovou; achado incorporado: asserts pinando title e og:description (decisão do aceite estava sem teste). Notas do revisor registradas: (a) dois focos âmbar no hero (AI + CTA) — legítimo pela identidade (papéis: CTA + uma palavra por headline), mas a T3 soma o glow do watermark: tensão para marketing avaliar com a página pronta, não patch local; (b) `.hero-cta` espelha o botão do form, ambos sem `:hover`/`:focus-visible` — melhoria conjunta futura, não drive-by; (c) `max-width: 18ch` do h1 — conferir tagline em uma linha na inspeção visual do fechamento.
+- **Nota de histórico:** o commit da T1 não chegou a acontecer no terminal de Pedro (branch criada, commit não; pego pelo revisor da T2 via `git log`). T1+T2 entraram num **único commit combinado** — separação por hunk não valia o atrito; este log é o registro por tarefa.
+- **Correção de processo (2026-07-10):** o CI só roda em `pull_request` e push na `main` — push em branch sem PR não valida nada. Ajuste no desvio registrado acima: **abrir a PR como draft já no primeiro push** (CI roda em cada push da branch; draft não convida merge); no final, tirar do draft e revisar commit a commit.
+- **T4 — feita (2026-07-10).** Tokens `--ok-500`/`--no-500` (hex exatos da paleta v0.2) + classes `.mark-ok`/`.mark-no`; 12✓/6✗ embrulhados em span por página (matriz conferida célula a célula pelo revisor contra `landing-page.md` v0.5, PT e EN). Teste conta por classe E por total (marca fora de span falha), e — achado do revisor incorporado — trava o número de consumidores de cada token em exatamente 1 (regra 6 da identidade: ok/no nunca em CTA/link/destaque). ~55 linhas.
+- **Nota de histórico (2ª):** T1–T4 entraram num **único commit combinado** — o `git add`/`commit` de Pedro falhou duas vezes por locks órfãos (`HEAD.lock`, `index.lock`) deixados por operações de git no sandbox do Cowork; sandbox parou de rodar git no repo (lição operacional). O registro por tarefa é este log; o `make test`+`lint` local passou com T1–T4 juntas antes do commit.
+- **T3 — feita (2026-07-10).** `rooster-full.webp` (26 KB, 600×600, cópia byte a byte) servido como `/static/rooster-watermark.webp`; `<img>` decorativa (`alt=""` + `aria-hidden` + `loading="lazy"` — deliberado: em mobile o `display:none` evita até o download) no header das duas rotas; CSS: 16%, direita, `z-index` negativo (atrás do texto, na frente do fundo — stacking verificado pelo revisor), glow âmbar próprio via `::before`, sem offsets negativos (sem overflow horizontal, verificado 601–1000px), some ≤600px. Revisor aprovou; achado incorporado: guarda do CSS no teste (mesmo padrão da T1). Nota do revisor para o fechamento: a verificação visual do "nunca compete com o H1" deve incluir a faixa **601–960px** (H1 e galo se tocam no limite, galo atrás a 16%), não só 390px e desktop cheio. Diff ~75 linhas (orçamento "~60" — dentro do "~", registrado).
 
 ## Fechamento (skill `fechar-epico`)
 
