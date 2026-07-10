@@ -3,6 +3,12 @@
 Newest first. Every entry: decision, rationale, what would reverse it.
 Upstream: `_strategy/decisions.md` (solo, delivery 100% automatizada, MVP + 2–3 clientes em ~90 dias).
 
+## 2026-07-10 — Review por PR removido do loop por tarefa; gate humano de merge vira opcional
+
+- **Decisão:** o fluxo por tarefa deixa de exigir PR + review manual de Pedro. Novo fluxo: branch por épico, commit por lote de tarefas (com `make test`+`lint` locais obrigatórios), revisor de contexto limpo por tarefa (automático, obrigatório), merge na `main` via terminal ao fim do épico. Review de código de Pedro passa a ser opcional/a posteriori.
+- **Rationale:** decisão de Pedro (2026-07-10) — o PR estava criando dependência recorrente da atenção dele, contra o guardrail da empresa solo ("ops que exigem atenção humana recorrente são um bug"). A proteção de produção não vem do PR: `deploy.yml` só dispara via `workflow_run` com CI verde na `main` (épico 002, T4) — push quebrado na main não deploya. O que se perde: CI em push de branch (sem PR não roda; mitigado pelo `make test`/`lint` local antes de todo push) e o gate humano pré-merge (mitigado pelo revisor + testes + CI).
+- **Reversed if:** entrar um segundo colaborador (PR volta a ser o ponto de sincronização), ou um incidente de produção que o review humano pré-merge teria pego.
+
 ## 2026-07-10 — golangci-lint migrado para v2 (v2.12.2 + action v9); ignore do Dependabot removido (épico 002, T21)
 
 - **Decisão:** CI usa `golangci-lint-action@v9` com `golangci-lint v2.12.2`. Sem `.golangci.yml` — o conjunto default "standard" do v2 equivale ao default do v1 (gosimple absorvido pelo staticcheck); config só entra quando houver necessidade real. Removido o `ignore` de `golangci-lint-action >= 7` do `.github/dependabot.yml` (condição de reversão da entrada de 2026-07-08 cumprida).

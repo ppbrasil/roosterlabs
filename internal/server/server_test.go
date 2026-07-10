@@ -617,10 +617,19 @@ func TestFooterBrand(t *testing.T) {
 	rec = httptest.NewRecorder()
 	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
 	css := rec.Body.String()
-	for _, want := range []string{".wordmark", ".wordmark-labs", ".footer-brand"} {
+	for _, want := range []string{".footer-brand", ".wordmark"} {
 		if !strings.Contains(css, want) {
 			t.Fatalf("/static/site.css: missing %q (footer brand, v0.5)", want)
 		}
+	}
+	// Achado do revisor da T5: presença de seletor não impede regressão de
+	// valor — 300 no wordmark ("não segura pequeno") ou "Labs" fora do âmbar
+	// passariam verdes. Asserts miram os valores da spec.
+	if !strings.Contains(css, ".wordmark {\n  font-family: \"Albert Sans\", Arial, sans-serif;\n  font-weight: 500;") {
+		t.Fatal("/static/site.css: wordmark must be Albert Sans weight 500 (visual identity v0.5)")
+	}
+	if !strings.Contains(css, ".wordmark-labs {\n  color: var(--amber-500);") {
+		t.Fatal("/static/site.css: wordmark 'Labs' must be amber (visual identity v0.5)")
 	}
 }
 
