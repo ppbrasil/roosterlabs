@@ -41,10 +41,10 @@ proposto → escopado → aceito → em-execução → concluído
 - Anti-alucinação, cada tarefa declara: **blast radius** (arquivos/funções que espera tocar e que deve ler antes — sair da lista durante a implementação = parar e atualizar a tarefa), plano de teste com edge cases enumerados antes de código, traço ao item do DoD, e orçamento de diff (~150 linhas, excluindo gerado). **Proibido drive-by**: melhoria fora do comportamento vira tarefa própria.
 
 ### 5. Build / Test / Review / Deploy (por tarefa)
-- Branch por tarefa. **Testes primeiro** (do plano de teste), depois implementação. Commits pequenos.
-- Local/devcontainer: `make test` antes de qualquer push. CI roda build + vet + test + lint em todo PR; PR vermelho não é revisado.
-- Review em camadas: (1) agente `revisor` — contexto limpo, ataca o diff contra tarefa, DoD e edge cases; (2) CI verde; (3) Pedro revisa o diff e roda local. `/security-review` obrigatório quando tocar input de usuário, auth ou dados de cliente.
-- Merge em `main` → deploy automático em produção. Rollback = revert + merge.
+- Branch por épico (decisão 2026-07-10; era por tarefa, com PR). **Testes primeiro** (do plano de teste), depois implementação. Um commit por tarefa ou por lote pequeno de tarefas.
+- Local/devcontainer: `make test` + `make lint` antes de qualquer push — é o gate de branch (sem PR, o CI não roda em push de branch).
+- Review em camadas: (1) agente `revisor` — contexto limpo, ataca o diff contra tarefa, DoD e edge cases (obrigatório, por tarefa); (2) CI verde na `main` pós-merge — o deploy só dispara com ele; (3) review de Pedro é **opcional/a posteriori** (`git log -p`), sem PR (decisão 2026-07-10, `decisions.md` — reverte se entrar colaborador). `/security-review` obrigatório quando tocar input de usuário, auth ou dados de cliente.
+- Fim do épico: merge da branch na `main` via terminal → CI → deploy automático (CI vermelho não deploya). Rollback = revert + push.
 - Problema de copy/posicionamento descoberto no meio? Não corrige local — nota no épico, sobe upstream.
 
 ### 6. Fechar (engineering) — e repetir

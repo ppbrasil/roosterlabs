@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RoosterLabs · Você. AImplificado.</title>
-  <meta name="description" content="A RoosterLabs cuida do caminho inteiro do seu conteúdo no LinkedIn — do assunto certo à publicação — sempre a partir do seu ponto de vista real.">
+  <meta name="description" content="A RoosterLabs garante a sua cadência de conteúdo no LinkedIn: transformamos o seu ponto de vista real em posts consistentes — do assunto certo à publicação. Feito para profissionais seniores construindo autoridade.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="RoosterLabs · Você. AImplificado.">
@@ -25,7 +25,7 @@
        decisions.md), que é caminho crítico. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500&family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/site.css">
   <!-- htmx vendorado em /static: unpkg travou em produção (2026-07-07);
        CDN de terceiro no caminho crítico do form é risco desnecessário. -->
@@ -34,10 +34,17 @@
 </head>
 <body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
   <header class="site-header">
-    <p class="eyebrow">Você. AImplificado.</p>
+    <!-- Marca d'água do galo (v0.5): decorativa, 16%, atrás do texto — nunca
+         compete com o H1; some em mobile (visual-identity.md v0.5). -->
+    <img class="hero-watermark" src="/static/rooster-watermark.webp" alt="" aria-hidden="true" loading="lazy">
     <a href="/en/" class="lang-link">English version</a>
-    <h1>Amplificar você não é escrever por você. É refletir você.</h1>
-    <p class="lead">A RoosterLabs cuida do caminho inteiro do seu conteúdo no LinkedIn — do assunto certo à publicação — sempre a partir do seu ponto de vista real. A IA faz o trabalho pesado; a autoridade construída é sua.</p>
+    <!-- v0.5: tagline promovida a H1, sem eyebrow. Só o prefixo "AI" leva
+         âmbar — em Albert Sans, a palavra inteira numa cor lê "Almplificado"
+         (I maiúsculo = l minúsculo); ver landing-page.md v0.5. -->
+    <h1>Você. <span class="ai-accent">AI</span>mplificado.</h1>
+    <p class="lead">A RoosterLabs garante a sua cadência de conteúdo no LinkedIn: transformamos o seu ponto de vista real em posts consistentes — do assunto certo à publicação. Feito para profissionais seniores construindo autoridade.</p>
+    <p class="hero-close">O conteúdo é seu. O trabalho pesado, nosso.</p>
+    <a class="hero-cta" href="#lead-form">Quero uma vaga no alfa</a>
   </header>
 
   <main>
@@ -75,12 +82,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Escreve o post</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr><td>A partir do seu take real, não de template</td><td>✗</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Gatilhos + linha editorial próprios</td><td>✗</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Consistência como parte do serviço</td><td>✗</td><td>✓</td><td>✓</td></tr>
-            <tr><td>Na sua voz — nem genérica, nem emprestada</td><td>✗</td><td>✓</td><td>✗</td></tr>
-            <tr><td>Preço de software</td><td>✓</td><td>✓</td><td>✗</td></tr>
+            <tr><td>Escreve o post</td><td><span class="mark-ok">✓</span></td><td><span class="mark-ok">✓</span></td><td><span class="mark-ok">✓</span></td></tr>
+            <tr><td>A partir do seu take real, não de template</td><td><span class="mark-no">✗</span></td><td><span class="mark-ok">✓</span></td><td><span class="mark-ok">✓</span></td></tr>
+            <tr><td>Gatilhos + linha editorial próprios</td><td><span class="mark-no">✗</span></td><td><span class="mark-ok">✓</span></td><td><span class="mark-ok">✓</span></td></tr>
+            <tr><td>Consistência como parte do serviço</td><td><span class="mark-no">✗</span></td><td><span class="mark-ok">✓</span></td><td><span class="mark-ok">✓</span></td></tr>
+            <tr><td>Na sua voz — nem genérica, nem emprestada</td><td><span class="mark-no">✗</span></td><td><span class="mark-ok">✓</span></td><td><span class="mark-no">✗</span></td></tr>
+            <tr><td>Preço de software</td><td><span class="mark-ok">✓</span></td><td><span class="mark-ok">✓</span></td><td><span class="mark-no">✗</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -95,6 +102,12 @@
   </main>
 
   <footer class="site-footer">
+    <!-- Ícone decorativo (alt vazio): o wordmark ao lado já dá o nome —
+         alt="RoosterLabs" duplicaria a leitura em leitores de tela. -->
+    <p class="footer-brand">
+      <img class="footer-icon" src="/static/rooster-icon.png" alt="" width="28" height="28">
+      <span class="wordmark">Rooster<span class="wordmark-labs">Labs</span></span>
+    </p>
     <p>RoosterLabs · contato: <a href="mailto:{{.ContactEmail}}">{{.ContactEmail}}</a> · <a href="/en/">English version</a></p>
   </footer>
 </body>

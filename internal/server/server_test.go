@@ -46,13 +46,38 @@ func TestIndexRenders(t *testing.T) {
 	if ct := rec.Header().Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
 		t.Fatalf("got Content-Type %q, want text/html", ct)
 	}
-	// v0.4: tagline "Você. AImplificado." substitui "Auto-Autenticidade"
-	// (épico 002, T9) — checa a copy nova, não a antiga.
-	if !strings.Contains(rec.Body.String(), "Você. AImplificado.") {
-		t.Fatal("index page does not mention the v0.4 tagline")
+	body := rec.Body.String()
+	// v0.5 (épico 003, T2): tagline promovida a H1, só o "AI" em âmbar —
+	// o span quebra a string contígua, então o assert mira o markup exato.
+	if !strings.Contains(body, `<h1>Você. <span class="ai-accent">AI</span>mplificado.</h1>`) {
+		t.Fatal("index page missing v0.5 hero H1 (tagline with amber AI prefix)")
 	}
-	if strings.Contains(rec.Body.String(), "AUTO-AUTENTICIDADE") {
+	if strings.Contains(body, `class="eyebrow"`) {
+		t.Fatal("index page still renders the eyebrow (retired in v0.5)")
+	}
+	if strings.Contains(body, "Amplificar você não é escrever por você") {
+		t.Fatal("index page still renders the v0.4 hero H1")
+	}
+	if !strings.Contains(body, "A RoosterLabs garante a sua cadência de conteúdo no LinkedIn") {
+		t.Fatal("index page missing v0.5 hero sub")
+	}
+	if !strings.Contains(body, "O conteúdo é seu. O trabalho pesado, nosso.") {
+		t.Fatal("index page missing v0.5 hero closing line")
+	}
+	if !strings.Contains(body, `href="#lead-form"`) || !strings.Contains(body, "Quero uma vaga no alfa") {
+		t.Fatal("index page missing hero CTA anchored to #lead-form")
+	}
+	if strings.Contains(body, "AUTO-AUTENTICIDADE") {
 		t.Fatal("index page still renders retired v0.3 copy (Auto-Autenticidade)")
+	}
+	// Decisão do aceite do épico 003: title e og:description NÃO mudam na
+	// v0.5 (achado do revisor da T2 — sem estes asserts, uma edição futura
+	// do <head> passaria verde).
+	if !strings.Contains(body, "<title>RoosterLabs · Você. AImplificado.</title>") {
+		t.Fatal("index page title must keep the tagline (unchanged in v0.5)")
+	}
+	if !strings.Contains(body, `og:description" content="Saber nunca foi o seu problema. Transformar isso em conteúdo, sim."`) {
+		t.Fatal("index page og:description must keep the problem H2 (unchanged in v0.5)")
 	}
 	// O form do passo 1 é embutido no fim da página; se o template falhar no
 	// meio da renderização, o corpo fica truncado e este check pega o bug
@@ -70,11 +95,33 @@ func TestEnglishIndexRenders(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("got status %d, want %d", rec.Code, http.StatusOK)
 	}
-	if !strings.Contains(rec.Body.String(), "You. AImplified.") {
-		t.Fatal("english page does not mention the v0.4 tagline")
+	enBody := rec.Body.String()
+	if !strings.Contains(enBody, `<h1>You. <span class="ai-accent">AI</span>mplified.</h1>`) {
+		t.Fatal("english page missing v0.5 hero H1 (tagline with amber AI prefix)")
 	}
-	if strings.Contains(rec.Body.String(), "AUTO-AUTHENTICITY") {
+	if strings.Contains(enBody, `class="eyebrow"`) {
+		t.Fatal("english page still renders the eyebrow (retired in v0.5)")
+	}
+	if strings.Contains(enBody, "Amplifying you isn't writing for you") {
+		t.Fatal("english page still renders the v0.4 hero H1")
+	}
+	if !strings.Contains(enBody, "RoosterLabs guarantees your LinkedIn content cadence") {
+		t.Fatal("english page missing v0.5 hero sub")
+	}
+	if !strings.Contains(enBody, "The content is yours. The heavy lifting, ours.") {
+		t.Fatal("english page missing v0.5 hero closing line")
+	}
+	if !strings.Contains(enBody, `href="#lead-form"`) || !strings.Contains(enBody, "Get an alpha seat") {
+		t.Fatal("english page missing hero CTA anchored to #lead-form")
+	}
+	if strings.Contains(enBody, "AUTO-AUTHENTICITY") {
 		t.Fatal("english page still renders retired v0.3 copy (Auto-Authenticity)")
+	}
+	if !strings.Contains(enBody, "<title>RoosterLabs · You. AImplified.</title>") {
+		t.Fatal("english page title must keep the tagline (unchanged in v0.5)")
+	}
+	if !strings.Contains(enBody, `og:description" content="Knowing was never your problem. Turning it into content is."`) {
+		t.Fatal("english page og:description must keep the problem H2 (unchanged in v0.5)")
 	}
 	if !strings.Contains(rec.Body.String(), `id="lead-form"`) {
 		t.Fatal("english page rendered without embedded lead form (partial render?)")
@@ -307,13 +354,41 @@ func TestPositioningTableRendersAllRows(t *testing.T) {
 					t.Fatalf("missing comparison row %q", row)
 				}
 			}
+			// v0.5 (épico 003, T4): ✓/✗ semânticos — cada marca embrulhada
+			// no span da classe certa, sem marca fora de span.
+			if got := strings.Count(body, `<span class="mark-ok">✓</span>`); got != 12 {
+				t.Fatalf("got %d ok marks in mark-ok spans, want 12", got)
+			}
+			if got := strings.Count(body, `<span class="mark-no">✗</span>`); got != 6 {
+				t.Fatalf("got %d cross marks in mark-no spans, want 6", got)
+			}
 			if got := strings.Count(body, "✓"); got != 12 {
-				t.Fatalf("got %d check marks, want 12", got)
+				t.Fatalf("got %d total check marks, want 12 (mark outside span?)", got)
 			}
 			if got := strings.Count(body, "✗"); got != 6 {
-				t.Fatalf("got %d cross marks, want 6", got)
+				t.Fatalf("got %d total cross marks, want 6 (mark outside span?)", got)
 			}
 		})
+	}
+
+	// Guarda do CSS (padrão T1/T3): tokens semânticos definidos e aplicados —
+	// e só em contexto de comparação (regra da identidade v0.5).
+	h := newTestHandler(t)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
+	css := rec.Body.String()
+	for _, want := range []string{"--ok-500: #82b88a", "--no-500: #c96f6f", ".mark-ok", ".mark-no"} {
+		if !strings.Contains(css, want) {
+			t.Fatalf("/static/site.css: missing %q (semantic ok/no tokens, v0.5)", want)
+		}
+	}
+	// Regra 6 da identidade: ok/no só em comparação. Único consumidor
+	// permitido de cada token é a própria classe .mark-* (achado do revisor
+	// da T4 — presença não impede var(--ok-500) vazar para CTA/link).
+	for _, token := range []string{"var(--ok-500)", "var(--no-500)"} {
+		if got := strings.Count(css, token); got != 1 {
+			t.Fatalf("/static/site.css: %s used %d times, want exactly 1 (comparison marks only)", token, got)
+		}
 	}
 }
 
@@ -466,6 +541,98 @@ func TestFormOptionsMatchV04(t *testing.T) {
 	}
 }
 
+// TestHeroWatermark cobre o T3 do épico 003: galo decorativo no hero das
+// duas rotas (aria-hidden, alt vazio) e asset .webp servido com o
+// Content-Type certo.
+func TestHeroWatermark(t *testing.T) {
+	h := newTestHandler(t)
+
+	for _, path := range []string{"/", "/en/"} {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		body := rec.Body.String()
+
+		if !strings.Contains(body, `class="hero-watermark"`) {
+			t.Fatalf("%s: missing hero watermark element", path)
+		}
+		if !strings.Contains(body, `src="/static/rooster-watermark.webp" alt="" aria-hidden="true"`) {
+			t.Fatalf("%s: hero watermark must be decorative (empty alt + aria-hidden)", path)
+		}
+	}
+
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/rooster-watermark.webp", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("watermark asset: got status %d, want %d", rec.Code, http.StatusOK)
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "image/webp" {
+		t.Fatalf("watermark asset: got Content-Type %q, want image/webp", ct)
+	}
+
+	// Guarda do CSS (achado do revisor da T3, mesmo padrão da T1): sem isto,
+	// reverter o bloco do watermark deixa a <img> órfã em fluxo, opaca,
+	// empurrando o layout — com CI verde.
+	rec = httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
+	css := rec.Body.String()
+	if !strings.Contains(css, ".hero-watermark") || !strings.Contains(css, "opacity: 0.16") {
+		t.Fatal("/static/site.css: missing hero watermark styles (position/opacity 16%)")
+	}
+}
+
+// TestFooterBrand cobre o T5 do épico 003: ícone + wordmark no rodapé das
+// duas rotas, asset otimizado servido corretamente.
+func TestFooterBrand(t *testing.T) {
+	h := newTestHandler(t)
+
+	for _, path := range []string{"/", "/en/"} {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		body := rec.Body.String()
+
+		if !strings.Contains(body, `src="/static/rooster-icon.png" alt="" width="28" height="28"`) {
+			t.Fatalf("%s: missing decorative footer icon", path)
+		}
+		if !strings.Contains(body, `<span class="wordmark">Rooster<span class="wordmark-labs">Labs</span></span>`) {
+			t.Fatalf("%s: missing two-tone wordmark in footer", path)
+		}
+	}
+
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/rooster-icon.png", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("footer icon asset: got status %d, want %d", rec.Code, http.StatusOK)
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "image/png" {
+		t.Fatalf("footer icon asset: got Content-Type %q, want image/png", ct)
+	}
+	// Plano da T5: asset otimizado (derivado ~112px), nunca o master de
+	// 1,6 MB por engano.
+	if size := rec.Body.Len(); size > 30*1024 {
+		t.Fatalf("footer icon asset: %d bytes, want <=30KB (optimized derivative)", size)
+	}
+
+	// Guarda do CSS (padrão T1/T3/T4): wordmark em Albert Sans 500 com
+	// "Labs" em âmbar.
+	rec = httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
+	css := rec.Body.String()
+	for _, want := range []string{".footer-brand", ".wordmark"} {
+		if !strings.Contains(css, want) {
+			t.Fatalf("/static/site.css: missing %q (footer brand, v0.5)", want)
+		}
+	}
+	// Achado do revisor da T5: presença de seletor não impede regressão de
+	// valor — 300 no wordmark ("não segura pequeno") ou "Labs" fora do âmbar
+	// passariam verdes. Asserts miram os valores da spec.
+	if !strings.Contains(css, ".wordmark {\n  font-family: \"Albert Sans\", Arial, sans-serif;\n  font-weight: 500;") {
+		t.Fatal("/static/site.css: wordmark must be Albert Sans weight 500 (visual identity v0.5)")
+	}
+	if !strings.Contains(css, ".wordmark-labs {\n  color: var(--amber-500);") {
+		t.Fatal("/static/site.css: wordmark 'Labs' must be amber (visual identity v0.5)")
+	}
+}
+
 func TestFontsLoadedFromGoogleFonts(t *testing.T) {
 	h := newTestHandler(t)
 
@@ -477,11 +644,31 @@ func TestFontsLoadedFromGoogleFonts(t *testing.T) {
 		if !strings.Contains(body, "fonts.googleapis.com/css2") {
 			t.Fatalf("%s: missing Google Fonts stylesheet link", path)
 		}
-		for _, family := range []string{"family=Fraunces", "family=Inter", "family=IBM+Plex+Mono"} {
+		for _, family := range []string{"family=Albert+Sans:wght@300;400;500", "family=Inter", "family=IBM+Plex+Mono"} {
 			if !strings.Contains(body, family) {
 				t.Fatalf("%s: missing font family %q in Google Fonts link", path, family)
 			}
 		}
+		if !strings.Contains(body, "display=swap") {
+			t.Fatalf("%s: Google Fonts link missing display=swap", path)
+		}
+		// Fraunces aposentada na identidade v0.5 (guardrail da serifa, 2º acionamento).
+		if strings.Contains(body, "Fraunces") {
+			t.Fatalf("%s: Fraunces must not be referenced anymore (visual identity v0.5)", path)
+		}
+	}
+
+	// O HTML carregar a fonte não basta: o CSS precisa usá-la (achado do
+	// revisor da T1 — sem isso, reverter o site.css deixa o CI verde com os
+	// headings caindo no fallback).
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
+	css := rec.Body.String()
+	if !strings.Contains(css, `"Albert Sans"`) {
+		t.Fatal("/static/site.css: headings must use Albert Sans (visual identity v0.5)")
+	}
+	if strings.Contains(css, "Fraunces") {
+		t.Fatal("/static/site.css: Fraunces must not be referenced anymore (visual identity v0.5)")
 	}
 }
 

@@ -6,6 +6,10 @@
   --amber-500: #f59e0b;
   --amber-700: #d97706;
   --pen-400: #6b8fe3;
+  /* Semânticos (identidade v0.5): só para ✓/✗ em comparações — nunca em
+     CTA, link ou destaque. Dessaturados para não disputar com o âmbar. */
+  --ok-500: #82b88a;
+  --no-500: #c96f6f;
 }
 
 * {
@@ -30,14 +34,40 @@ main,
 }
 
 .site-header {
+  position: relative;
   padding: 3rem 0 1.8rem;
 }
 
-.eyebrow {
-  font-family: "IBM Plex Mono", Menlo, monospace;
-  letter-spacing: 0.08em;
-  color: var(--amber-500);
-  margin: 0;
+/* Marca d'água do galo (épico 003, T3): 16%, lado direito, atrás do texto,
+   integrada a um glow âmbar próprio (::before). Sem offsets negativos —
+   evita overflow horizontal. Some em mobile (spec v0.5). */
+.hero-watermark {
+  position: absolute;
+  top: 1rem;
+  right: 0;
+  width: min(360px, 38vw);
+  opacity: 0.16;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100%;
+  background: radial-gradient(circle at 70% 35%, rgba(245, 158, 11, 0.12), transparent 65%);
+  z-index: -2;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .hero-watermark,
+  .site-header::before {
+    display: none;
+  }
 }
 
 .lang-link {
@@ -46,16 +76,28 @@ main,
   color: var(--pen-400);
 }
 
+/* Display: Albert Sans (identidade v0.5 — serifa aposentada pelo 2º
+   acionamento do guardrail). Peso fino: 300 só em texto ≥36px; abaixo, 400. */
 h1, h2, h3 {
-  font-family: "Fraunces", "Times New Roman", serif;
+  font-family: "Albert Sans", Arial, sans-serif;
+  font-weight: 400;
   line-height: 1.2;
   margin: 0 0 0.85rem;
 }
 
 h1 {
   font-size: clamp(2rem, 6vw, 3.8rem);
+  font-weight: 300;
   max-width: 18ch;
   margin-top: 1rem;
+}
+
+/* Abaixo de ~600px o clamp do h1 resolve <36px (6vw<36px) — o guardrail do
+   peso fino manda voltar para 400 nesses tamanhos. */
+@media (max-width: 600px) {
+  h1 {
+    font-weight: 400;
+  }
 }
 
 h2 {
@@ -65,6 +107,32 @@ h2 {
 .lead {
   color: var(--paper-100);
   max-width: 64ch;
+}
+
+/* Hero v0.5 (épico 003, T2) */
+.ai-accent {
+  /* Só o prefixo "AI" da tagline — âmbar na palavra inteira mata o
+     trocadilho em Albert Sans (I maiúsculo = l minúsculo). */
+  color: var(--amber-500);
+}
+
+.hero-close {
+  color: var(--paper-100);
+  font-size: 1.15rem;
+  font-weight: 600;
+  max-width: 64ch;
+}
+
+.hero-cta {
+  /* Mesmo desenho do botão do form (conversão consistente). */
+  display: inline-block;
+  margin-top: 0.9rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  color: #151a22;
+  background: linear-gradient(90deg, var(--amber-500), var(--amber-700));
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .section {
@@ -84,6 +152,14 @@ h2 {
 .compare-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.mark-ok {
+  color: var(--ok-500);
+}
+
+.mark-no {
+  color: var(--no-500);
 }
 
 .compare-table {
@@ -209,6 +285,31 @@ h2 {
 .site-footer {
   padding: 1rem 0 2.4rem;
   color: var(--paper-400);
+}
+
+/* Marca no rodapé (épico 003, T5): ícone + wordmark. Wordmark em Albert
+   Sans 500 — peso 300 não segura em tamanho pequeno (visual-identity v0.5). */
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.35rem;
+}
+
+.footer-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.wordmark {
+  font-family: "Albert Sans", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--paper-100);
+}
+
+.wordmark-labs {
+  color: var(--amber-500);
 }
 
 .site-footer a {
