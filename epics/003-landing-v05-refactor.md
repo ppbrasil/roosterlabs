@@ -202,4 +202,17 @@ Pedro inspecionou a v0.5 no ar e abriu três correções. Item 2 (favicon) e T8 
 
 ## Fechamento (skill `fechar-epico`)
 
-_A preencher no fechamento._
+**Fechado por evidência em 2026-07-13.** Landing v0.5 + emendas T8/T9 no ar (`roosterlabs.com.br` e `/en/`), verificadas ao vivo via Claude in Chrome (desktop 1728px + inspeção de CSSOM/DOM em produção).
+
+Evidência do DoD (11 itens congelados no aceite):
+
+- **1, 2, 4, 5, 7** — evidenciados no fechamento da v0.5 (2026-07-10, T1–T7); seguem no ar.
+- **3 (watermark) + emendas T8/T9** — verificado em produção 2026-07-13: `.site-watermark` com `position: fixed`, `opacity: 0.16`, backdrop atrás de todo o conteúdo; crista/cabeça do galo preservada no topo (zoom desktop) e galo fixo ao rolar. **Mobile:** varredura do CSSOM em produção confirmou **uma única regra** mirando `.site-watermark` (base, sem media query, sem `display:none`) — o galo renderiza em qualquer largura, revertendo o "some ≤600px" da v0.5. Os dois primeiros H2 (PT e EN) em duas linhas com a 2ª em `.h2-accent` (`rgb(245,158,11)` = `#F59E0B`), `<br>` presente. Favicon = `/static/rooster-icon.png` nas duas rotas.
+- **8, 9** — deploy automático das emendas confirmado (Pedro) + página no ar verificada.
+- **10** — `docs/architecture.md` atualizado para o estado real (watermark = backdrop da página, favicon, H2 âmbar; emendas T8/T9 descritas).
+- **11** — custo ≤ ~US$1/mês; emendas não tocaram infra.
+- **6 (OG: re-scrape LinkedIn Post Inspector + preview WhatsApp)** — **última evidência, a confirmar por Pedro.** As emendas T8/T9 não tocaram OG (metatags/arquivos inalterados desde a T6); a evidência depende do Post Inspector (login de Pedro). Fechamento fica condicionado a esse ok — se o preview v0.5 já aparece, o épico está fechado; se não, é bug de cache do LinkedIn a forçar re-scrape, não regressão do código.
+
+**Sync com marketing (dessincronia zerada):** `visual-identity.md` e `landing-page.md` atualizados para **v0.5.1** (2026-07-13) — spec do watermark (backdrop + visível em mobile), regra do âmbar (2ª linha do H2 de seção) e apresentação dos H2. Ver a nota de sync acima (resolvida).
+
+**Débitos herdados que seguem fora deste épico (registrados, não bloqueiam):** transições de UX do form entre etapas (marketing, se quiser, vira épico próprio); versão pen-700 do ícone para fundos claros + redução micro sólida do favicon (identidade, pendência de marketing).

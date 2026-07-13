@@ -96,10 +96,10 @@ h2 {
 }
 
 /* 2ª linha dos H2 em âmbar (emenda T9, decisão de Pedro 2026-07-13 como dono
-   da marca). ATENÇÃO — quebra a regra escrita da identidade v0.5: "uma palavra
-   por headline no máximo" e "um foco âmbar por tela". landing-page.md e
-   visual-identity.md (roosterlabs-marketing) precisam refletir isso na próxima
-   sessão de marketing; ver nota de sync no épico 003. */
+   da marca). A regra da identidade foi atualizada de acordo: `visual-identity.md`
+   v0.5.1 permite 2ª linha inteira em âmbar nos H2 de seção (antes: "uma palavra
+   por headline"); `landing-page.md` v0.5.1 documenta a apresentação. Sync feita
+   em 2026-07-13 — ver Fechamento do épico 003. */
 .h2-accent {
   color: var(--amber-500);
 }
