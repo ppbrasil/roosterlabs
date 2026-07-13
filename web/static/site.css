@@ -38,36 +38,27 @@ main,
   padding: 3rem 0 1.8rem;
 }
 
-/* Marca d'água do galo (épico 003, T3): 16%, lado direito, atrás do texto,
-   integrada a um glow âmbar próprio (::before). Sem offsets negativos —
-   evita overflow horizontal. Some em mobile (spec v0.5). */
-.hero-watermark {
-  position: absolute;
-  top: 1rem;
-  right: 0;
-  width: min(360px, 38vw);
+/* Marca d'água do galo (épico 003, T8 — emenda): backdrop da PÁGINA INTEIRA,
+   não ornamento de quina. Fixed + centralizado no eixo X, ancorado perto do
+   topo (top:40px) para que a cabeça/crista nunca corte — o 2x (170vw) faz o
+   rabo (à esquerda) e as pernas (embaixo) saírem do quadro. Valores (16%,
+   top:40px) aprovados por Pedro em 2026-07-13. 16% assombra sem competir com
+   a leitura; o blur das .section
+   suaviza ainda mais o que passa por trás.
+   MANTIDO EM MOBILE (Pedro 2026-07-13): o esconde ≤600px do spec v0.5 foi
+   removido — a experiência mobile fica igual à do desktop. Como 170vw > largura
+   do celular, o galo aparece ampliado (peito/corpo), coerente com o backdrop.
+   O glow âmbar do ::before foi removido: com o galo central, um blob âmbar à
+   direita duplicava o foco do CTA (identidade v0.5: "um foco âmbar por tela"). */
+.site-watermark {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(2000px, 170vw);
   opacity: 0.16;
   z-index: -1;
   pointer-events: none;
-}
-
-.site-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 420px;
-  height: 100%;
-  background: radial-gradient(circle at 70% 35%, rgba(245, 158, 11, 0.12), transparent 65%);
-  z-index: -2;
-  pointer-events: none;
-}
-
-@media (max-width: 600px) {
-  .hero-watermark,
-  .site-header::before {
-    display: none;
-  }
 }
 
 .lang-link {
@@ -102,6 +93,15 @@ h1 {
 
 h2 {
   font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+/* 2ª linha dos H2 em âmbar (emenda T9, decisão de Pedro 2026-07-13 como dono
+   da marca). ATENÇÃO — quebra a regra escrita da identidade v0.5: "uma palavra
+   por headline no máximo" e "um foco âmbar por tela". landing-page.md e
+   visual-identity.md (roosterlabs-marketing) precisam refletir isso na próxima
+   sessão de marketing; ver nota de sync no épico 003. */
+.h2-accent {
+  color: var(--amber-500);
 }
 
 .lead {

@@ -541,10 +541,11 @@ func TestFormOptionsMatchV04(t *testing.T) {
 	}
 }
 
-// TestHeroWatermark cobre o T3 do épico 003: galo decorativo no hero das
-// duas rotas (aria-hidden, alt vazio) e asset .webp servido com o
+// TestSiteWatermark cobre o T3 + a emenda T8 do épico 003: galo decorativo
+// atrás de todo o conteúdo (backdrop da página, não mais ornamento do hero)
+// nas duas rotas (aria-hidden, alt vazio) e asset .webp servido com o
 // Content-Type certo.
-func TestHeroWatermark(t *testing.T) {
+func TestSiteWatermark(t *testing.T) {
 	h := newTestHandler(t)
 
 	for _, path := range []string{"/", "/en/"} {
@@ -552,11 +553,11 @@ func TestHeroWatermark(t *testing.T) {
 		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
 		body := rec.Body.String()
 
-		if !strings.Contains(body, `class="hero-watermark"`) {
-			t.Fatalf("%s: missing hero watermark element", path)
+		if !strings.Contains(body, `class="site-watermark"`) {
+			t.Fatalf("%s: missing site watermark element", path)
 		}
 		if !strings.Contains(body, `src="/static/rooster-watermark.webp" alt="" aria-hidden="true"`) {
-			t.Fatalf("%s: hero watermark must be decorative (empty alt + aria-hidden)", path)
+			t.Fatalf("%s: site watermark must be decorative (empty alt + aria-hidden)", path)
 		}
 	}
 
@@ -569,14 +570,61 @@ func TestHeroWatermark(t *testing.T) {
 		t.Fatalf("watermark asset: got Content-Type %q, want image/webp", ct)
 	}
 
-	// Guarda do CSS (achado do revisor da T3, mesmo padrão da T1): sem isto,
-	// reverter o bloco do watermark deixa a <img> órfã em fluxo, opaca,
-	// empurrando o layout — com CI verde.
+	// Guarda do CSS (achado do revisor da T3, mesmo padrão da T1; atualizado
+	// na T8): sem isto, reverter o bloco do watermark deixa a <img> órfã em
+	// fluxo, opaca, empurrando o layout — com CI verde. `position: fixed`
+	// trava o comportamento de backdrop (a emenda T8): se alguém voltar para
+	// absolute/quina, o teste pega.
 	rec = httptest.NewRecorder()
 	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
 	css := rec.Body.String()
-	if !strings.Contains(css, ".hero-watermark") || !strings.Contains(css, "opacity: 0.16") {
-		t.Fatal("/static/site.css: missing hero watermark styles (position/opacity 16%)")
+	if !strings.Contains(css, ".site-watermark") || !strings.Contains(css, "opacity: 0.16") {
+		t.Fatal("/static/site.css: missing site watermark styles (opacity 16%)")
+	}
+	if !strings.Contains(css, "position: fixed") {
+		t.Fatal("/static/site.css: site watermark must be fixed (backdrop da página, emenda T8)")
+	}
+}
+
+// TestLandingAmendmentsT8T9 cobre as emendas de 2026-07-13: favicon = ícone da
+// marca (item 2) e os dois primeiros H2 em duas linhas com a 2ª em âmbar (T9).
+// A copy dos H2 em `landing-page.md`/`visual-identity.md` ainda vai ser
+// sincronizada por marketing (ver nota no épico 003); este guard trava o que
+// já está em produção para que a sync não remova as quebras sem querer.
+func TestLandingAmendmentsT8T9(t *testing.T) {
+	h := newTestHandler(t)
+
+	// Favicon aponta para o ícone da marca (mesmo do rodapé), não o SVG
+	// provisório.
+	for _, path := range []string{"/", "/en/"} {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		body := rec.Body.String()
+		if !strings.Contains(body, `rel="icon" href="/static/rooster-icon.png"`) {
+			t.Fatalf("%s: favicon deve ser /static/rooster-icon.png (item 2)", path)
+		}
+	}
+
+	cases := []struct {
+		path, want string
+	}{
+		{"/", `Saber nunca foi o seu problema.<br><span class="h2-accent">Transformar isso em conteúdo, sim.</span>`},
+		{"/", `Do gatilho à publicação,<br><span class="h2-accent">com você no centro.</span>`},
+		{"/en/", `Knowing was never your problem.<br><span class="h2-accent">Turning it into content is.</span>`},
+		{"/en/", `From trigger to published,<br><span class="h2-accent">with you at the center.</span>`},
+	}
+	for _, c := range cases {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, c.path, nil))
+		if !strings.Contains(rec.Body.String(), c.want) {
+			t.Fatalf("%s: H2 âmbar (T9) fora do esperado, faltou: %s", c.path, c.want)
+		}
+	}
+
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site.css", nil))
+	if css := rec.Body.String(); !strings.Contains(css, ".h2-accent") {
+		t.Fatal("/static/site.css: missing .h2-accent (2ª linha âmbar do H2, T9)")
 	}
 }
 

@@ -18,7 +18,10 @@
   <meta name="twitter:title" content="RoosterLabs · Você. AImplificado.">
   <meta name="twitter:description" content="Saber nunca foi o seu problema. Transformar isso em conteúdo, sim.">
   <meta name="twitter:image" content="{{.OGImageURL}}">
-  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <!-- Favicon = ícone da marca (decisão de Pedro 2026-07-10, emenda ao 003;
+       substitui o zigue-zague provisório). A identidade ainda prevê uma
+       redução micro sólida — quando existir, troca aqui. -->
+  <link rel="icon" href="/static/rooster-icon.png" type="image/png">
   <!-- Fontes via Google Fonts CDN (épico 002, T14): decorativo, fora do
        caminho crítico de conversão — se falhar, cai no fallback do CSS e o
        form continua funcionando. Diferente do htmx (vendorado, ver
@@ -33,10 +36,12 @@
   <script defer src="/static/app.js"></script>
 </head>
 <body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
+  <!-- Marca d'água do galo (v0.5, emenda T8): backdrop da página inteira,
+       grande e central, atrás de todo o conteúdo — decorativa, some em mobile
+       (visual-identity.md v0.5). Fora do <header> de propósito: cobre a página,
+       não só o hero. -->
+  <img class="site-watermark" src="/static/rooster-watermark.webp" alt="" aria-hidden="true" loading="lazy">
   <header class="site-header">
-    <!-- Marca d'água do galo (v0.5): decorativa, 16%, atrás do texto — nunca
-         compete com o H1; some em mobile (visual-identity.md v0.5). -->
-    <img class="hero-watermark" src="/static/rooster-watermark.webp" alt="" aria-hidden="true" loading="lazy">
     <a href="/en/" class="lang-link">English version</a>
     <!-- v0.5: tagline promovida a H1, sem eyebrow. Só o prefixo "AI" leva
          âmbar — em Albert Sans, a palavra inteira numa cor lê "Almplificado"
@@ -49,7 +54,7 @@
 
   <main>
     <section class="section">
-      <h2>Saber nunca foi o seu problema. Transformar isso em conteúdo, sim.</h2>
+      <h2>Saber nunca foi o seu problema.<br><span class="h2-accent">Transformar isso em conteúdo, sim.</span></h2>
       <p>Publicar com consistência exige um processo que ninguém te contou: perceber o que no seu dia (e no noticiário) merece o seu comentário, descobrir qual é o <em>seu</em> take, transformar isso num post que pareça você — e repetir isso toda semana, com disciplina, por meses.</p>
       <p>Você tem as opiniões e a experiência. O que não tem é esse sistema. Por isso quase todo mundo:</p>
       <ul>
@@ -60,7 +65,7 @@
     </section>
 
     <section class="section">
-      <h2>Do gatilho à publicação, com você no centro.</h2>
+      <h2>Do gatilho à publicação,<br><span class="h2-accent">com você no centro.</span></h2>
       <ol>
         <li><strong>Encontramos o tema.</strong> Do noticiário do seu campo ou da sua própria linha editorial — um banco de ideias que nunca zera. Acabou o "sobre o que eu posto?".</li>
         <li><strong>Ouvimos você.</strong> Uma conversa rápida captura o seu take de verdade — a opinião, a experiência, a lição. Como um bom entrevistador, na hora que funcionar para você.</li>

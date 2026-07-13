@@ -18,7 +18,10 @@
   <meta name="twitter:title" content="RoosterLabs · You. AImplified.">
   <meta name="twitter:description" content="Knowing was never your problem. Turning it into content is.">
   <meta name="twitter:image" content="{{.OGImageURL}}">
-  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <!-- Favicon = brand icon (Pedro's decision 2026-07-10, amendment to 003;
+       replaces the provisional zigzag). Identity still calls for a solid
+       micro version — swap here when it exists. -->
+  <link rel="icon" href="/static/rooster-icon.png" type="image/png">
   <!-- Fonts via Google Fonts CDN (épico 002, T14): decorative, off the
        critical path — if it fails, the CSS fallback kicks in and the form
        keeps working. Different from htmx (vendored, see decisions.md),
@@ -32,10 +35,12 @@
   <script defer src="/static/app.js"></script>
 </head>
 <body data-language="{{.Lang}}" data-path="{{.PagePath}}" data-utm-source="{{.UTM.Source}}" data-utm-medium="{{.UTM.Medium}}" data-utm-campaign="{{.UTM.Campaign}}" data-utm-term="{{.UTM.Term}}" data-utm-content="{{.UTM.Content}}">
+  <!-- Rooster watermark (v0.5, T8 amendment): full-page backdrop, large and
+       centered, behind all content — decorative, hidden on mobile
+       (visual-identity.md v0.5). Outside <header> on purpose: covers the page,
+       not just the hero. -->
+  <img class="site-watermark" src="/static/rooster-watermark.webp" alt="" aria-hidden="true" loading="lazy">
   <header class="site-header">
-    <!-- Rooster watermark (v0.5): decorative, 16%, behind the text — never
-         competes with the H1; hidden on mobile (visual-identity.md v0.5). -->
-    <img class="hero-watermark" src="/static/rooster-watermark.webp" alt="" aria-hidden="true" loading="lazy">
     <a href="/" class="lang-link">Versão em português</a>
     <!-- v0.5: tagline promoted to H1, no eyebrow. Only the "AI" prefix gets
          amber — in Albert Sans the whole word in one color reads "Almplified"
@@ -48,7 +53,7 @@
 
   <main>
     <section class="section">
-      <h2>Knowing was never your problem. Turning it into content is.</h2>
+      <h2>Knowing was never your problem.<br><span class="h2-accent">Turning it into content is.</span></h2>
       <p>Publishing consistently takes a system nobody told you about: spotting what in your day (and in the news) deserves your comment, finding <em>your</em> take on it, turning that into a post that sounds like you — and repeating it every week, with discipline, for months.</p>
       <p>You have the opinions and the experience. What you don't have is that system. Which is why almost everyone:</p>
       <ul>
@@ -59,7 +64,7 @@
     </section>
 
     <section class="section">
-      <h2>From trigger to published, with you at the center.</h2>
+      <h2>From trigger to published,<br><span class="h2-accent">with you at the center.</span></h2>
       <ol>
         <li><strong>We find the topic.</strong> From your field's news or your own editorial line — an idea bank that never runs dry. No more "what do I even post about?".</li>
         <li><strong>We listen to you.</strong> A quick conversation captures your actual take — the opinion, the experience, the lesson. Like a good interviewer, whenever it suits you.</li>
